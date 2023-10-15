@@ -1,65 +1,48 @@
 ﻿using System.Numerics;
 using System.Timers;
+using System.Windows;
 using System.Windows.Input;
 using _3D_visualization.Model;
 using SharpGL;
 using SharpGL.WPF;
-using InputManager = _3D_visualization.Model.InputManager;
 using Timer = System.Timers.Timer;
 
 namespace _3D_visualization.ViewModel;
 
 public class ApplicationViewModel
 {
-    /*private Timer _globalTimer;*/
-    private readonly OpenGLControl _openGlControl;
-    private readonly InputManager _inputManager;
-    private readonly VisualManager _visualManager;
-
     public ApplicationViewModel(OpenGLControl openGlControl, int fps = 120)
     {
-        /*InitializeGlobalTimer(fps);*/
-        _inputManager = new InputManager();
-        _visualManager = new VisualManager(openGlControl);
-        _openGlControl = openGlControl;
+        GlobalEnvironment.GetInstance.Register(openGlControl);
     }
-
-    /*private void InitializeGlobalTimer(int fps)
-    {
-        _globalTimer = new System.Timers.Timer((double)1000 / fps);
-        _globalTimer.Elapsed += Update;
-        _globalTimer.AutoReset = true;
-        _globalTimer.Enabled = true;
-    }*/
 
     public void Update(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        _visualManager.Update();
-        _inputManager.Update();
-    }
-    
-    public void OpenGLControl_KeyDown(object sender, KeyEventArgs e)
-    {
-       _inputManager.OnKeyPressed(e.Key);
-    }
-    
-    public void OpenGLControl_KeyUp(object sender, KeyEventArgs e)
-    {
-        _inputManager.OnKeyReleased(e.Key);
-    }
-    
-    public void OpenGLControl_MouseHover(object sender, MouseEventArgs e)
-    {
-        _inputManager.OnMouseHover(e.GetPosition(_openGlControl));
+        GlobalEnvironment.GetInstance.Update();
     }
 
-    public void OpenGLControl_OpenGLInitialized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
+    public void Initialize(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        _visualManager.Initialize();
-    } 
-    
-    public void OpenGLControl_OpenGLResized(double Width, double Height)
+        GlobalEnvironment.GetInstance.GetGlobalConfigurator().SceneController.Initialize();
+    }
+
+    public void Resized(double width, double height)
     {
-        _visualManager.Resized(Width, Height);
-    } 
+        GlobalEnvironment.GetInstance.GetGlobalConfigurator().SceneController.Resized(width, height);
+    }
+
+    public void KeyDown(object sender, KeyEventArgs keyEventArgs)
+    {
+        GlobalEnvironment.GetInstance.GetGlobalConfigurator().InputController.OnKeyPressed(sender, keyEventArgs);
+    }
+
+    public void KeyUp(object sender, KeyEventArgs keyEventArgs)
+    {
+        GlobalEnvironment.GetInstance.GetGlobalConfigurator().InputController.OnKeyReleased(sender, keyEventArgs);
+    }
+
+    public void MouseHover(Point currentMousePos)
+    {
+        GlobalEnvironment.GetInstance.GetGlobalConfigurator().InputController.OnMouseHover(currentMousePos);
+    }
 }

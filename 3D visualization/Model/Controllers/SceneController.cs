@@ -1,36 +1,33 @@
-﻿using System.Numerics;
-using _3D_visualization.Model.Figures;
+﻿using _3D_visualization.Model.Components;
 using SharpGL;
 using SharpGL.WPF;
 
-namespace _3D_visualization.Model;
+namespace _3D_visualization.Model.Controllers;
 
-public class VisualManager
+public class SceneController : IController
 {
-    private readonly OpenGLControl _openGLControl;
-    private Camera _camera;
-    private List<BaseFigure> _figuresToDraw;
+    private CameraComponent _currentCameraComponent;
+    private OpenGLControl _openGlControl;
+    
     float rotatePyramid = 0;
     float rquad = 0;
 
-    public VisualManager(OpenGLControl openGlControl)
+    public SceneController(OpenGLControl openGlControl)
     {
-        _openGLControl = openGlControl;
-        _camera = new Camera(openGlControl);
-
+        _openGlControl = openGlControl;
+        _currentCameraComponent = new CameraComponent();
     }
 
-    public void SetFiguresToDraw(List<BaseFigure> figuresToDraw)
+    public void SetActiveCamera(CameraComponent cameraComponent)
     {
-        _figuresToDraw = figuresToDraw;
+        _currentCameraComponent = cameraComponent;
     }
 
     public void Update()
     {
-        _camera.Update();
-        
-        //  Get the OpenGL instance that's been passed to us.
-        OpenGL gl = _openGLControl.OpenGL;
+        OpenGL gl = _openGlControl.OpenGL;
+
+        UpdateCameraView();
 
         //  Clear the color and depth buffers.
         gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
@@ -126,17 +123,21 @@ public class VisualManager
 
         //  Flush OpenGL.
         gl.Flush();
-
-        //  Rotate the geometry a bit.
+        
         rotatePyramid += 3.0f;
         rquad -= 3.0f;
+    }
+
+    private void UpdateCameraView()
+    {
+        _currentCameraComponent.UpdateCameraComponent(_openGlControl.OpenGL);
     }
 
     public void Resized(double width, double height)
     {
         /*openGLControl.Focus();*/
 
-        OpenGL gl = _openGLControl.OpenGL;
+        OpenGL gl = _openGlControl.OpenGL;
 
         gl.MatrixMode(OpenGL.GL_PROJECTION);
 
@@ -152,7 +153,6 @@ public class VisualManager
     
     public void Initialize()
     {
-        //  Enable the OpenGL depth testing functionality.
-        _openGLControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
+        _openGlControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
     }
 }

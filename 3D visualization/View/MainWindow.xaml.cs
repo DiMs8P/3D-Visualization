@@ -34,34 +34,16 @@ public partial class MainWindow : Window
     private void OpenGLControl_OpenGLDraw(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
         _applicationViewModel.Update(sender, openGlRoutedEventArgs);
-        float speed = 0.05f;
-
-        if (Keyboard.IsKeyDown(Key.W))
-        {
-            cameraPos += speed * cameraFront;
-        }
-        if (Keyboard.IsKeyDown(Key.S))
-        {
-            cameraPos -= speed * cameraFront;
-        }
-        if (Keyboard.IsKeyDown(Key.A))
-        {
-            cameraPos -= Vector3.Normalize(Vector3.Cross(cameraFront, cameraUp)) * speed;
-        }
-        if (Keyboard.IsKeyDown(Key.D))
-        {
-            cameraPos += Vector3.Normalize(Vector3.Cross(cameraFront, cameraUp)) * speed;
-        }
     }
     
     private void OpenGLControl_OpenGLInitialized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        _applicationViewModel.OpenGLControl_OpenGLInitialized(sender, openGlRoutedEventArgs);
+        _applicationViewModel.Initialize(sender, openGlRoutedEventArgs);
     } 
 
     private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        _applicationViewModel.OpenGLControl_OpenGLResized(Width, Height);
+        _applicationViewModel.Resized(Width, Height);
     }
 
     private void Button_OpenFile(object sender, RoutedEventArgs e)
@@ -121,16 +103,16 @@ public partial class MainWindow : Window
 
     private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
     {
-        _applicationViewModel.OpenGLControl_MouseHover(sender, e);
+        _applicationViewModel.MouseHover(e.GetPosition(OpenGLControl));
     }
 
     private void OpenGLControl_KeyDown(object sender, KeyEventArgs e)
     {
-        _applicationViewModel.OpenGLControl_KeyDown(sender, e);
+        _applicationViewModel.KeyDown(sender, e);
     }
     
     private void OpenGLControl_KeyUp(object sender, KeyEventArgs e)
     {
-        _applicationViewModel.OpenGLControl_KeyUp(sender, e);
+        _applicationViewModel.KeyUp(sender, e);
     }
 }
