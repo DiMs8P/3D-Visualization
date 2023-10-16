@@ -3,6 +3,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using _3D_visualization.Model;
+using _3D_visualization.Model.Replication;
 using SharpGL;
 using SharpGL.WPF;
 using Timer = System.Timers.Timer;
@@ -44,5 +45,12 @@ public class ApplicationViewModel
     public void MouseHover(Point currentMousePos)
     {
         GlobalEnvironment.GetInstance.GetGlobalConfigurator().InputController.OnMouseHover(currentMousePos);
+    }
+
+    public void SetReplicationObjects(string fileName)
+    {
+        ReplicationObject replicationObject = ReplicationParser.TryParse(fileName);
+        FiguresGenerator figuresGenerator = new FiguresGenerator(replicationObject);
+        /*GlobalEnvironment.GetInstance.GetGlobalConfigurator().SceneController.Set*/
     }
 }

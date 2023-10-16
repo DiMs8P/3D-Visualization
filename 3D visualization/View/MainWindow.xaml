@@ -23,7 +23,7 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Margin="20" >
                     <Button Content="Открыть файл" Width="Auto" Height="Auto" VerticalAlignment="Top" Click="Button_OpenFile"/>
-                    <Button Content="Построить фигуру" Width="Auto" Height="Auto" VerticalAlignment="Top" Click="Button_DrawShape"/>
+                    <TextBlock Name="ErrorTextBlock" Text="" HorizontalAlignment="Center"/>
                 </StackPanel>
                 
                 <GridSplitter Grid.Row="1" ShowsPreview="False" Height="3"

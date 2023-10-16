@@ -8,6 +8,7 @@ public class SceneController : IController
 {
     private CameraComponent _currentCameraComponent;
     private OpenGLControl _openGlControl;
+    /*private List<BaseRenderObject> _renderObjects;*/
     
     float rotatePyramid = 0;
     float rquad = 0;
@@ -22,6 +23,11 @@ public class SceneController : IController
     {
         _currentCameraComponent = cameraComponent;
     }
+    
+    /*public void AddFigureToRender(BaseRenderObject renderObject)
+    {
+        _renderObjects.Add(renderObject);
+    }*/
 
     public void Update()
     {

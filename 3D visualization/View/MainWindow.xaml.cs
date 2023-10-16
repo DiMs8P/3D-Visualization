@@ -10,7 +10,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using _3D_visualization.Exception;
 using _3D_visualization.ViewModel;
+using Microsoft.Win32;
 using SharpGL;
 using SharpGL.WPF;
 using Vector = System.Windows.Vector;
@@ -48,13 +50,26 @@ public partial class MainWindow : Window
 
     private void Button_OpenFile(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        OpenFileDialog openFileDialog = new OpenFileDialog
+        {
+            DefaultExt = ".txt",
+            Filter = "Text Document (.txt)|*.txt"
+        };
+        if (openFileDialog.ShowDialog() == true)
+        {
+            string fileName = openFileDialog.FileName;
+            
+            try
+            {
+                _applicationViewModel.SetReplicationObjects(fileName);
+            }
+            catch (ReplicationArgumentException exception)
+            {
+                ErrorTextBlock.Text = exception.What();
+            }
+        }
     }
 
-    private void Button_DrawShape(object sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
 
     private void WireframeCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
