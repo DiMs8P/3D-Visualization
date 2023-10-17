@@ -37,23 +37,29 @@ public class InputController : IController
 
     public void Update()
     {
-        foreach (var keyboardAxisBinding in _keyboardAxisBindings)
+        if (_pressedKeys.Count != 0)
         {
-            if (_pressedKeys.Contains(keyboardAxisBinding.Key))
+            foreach (var keyboardAxisBinding in _keyboardAxisBindings)
             {
-                foreach (var inputComponent in keyboardAxisBinding.Value)
+                if (_pressedKeys.Contains(keyboardAxisBinding.Key))
                 {
-                    inputComponent.Value.Invoke();
+                    foreach (var inputComponent in keyboardAxisBinding.Value)
+                    {
+                        inputComponent.Value.Invoke();
+                    }
                 }
             }
         }
-        
-        foreach (var mouseHoverBinding in _mouseHoverBindings)
+
+        if (!Point.Equals(_prevMousePos, _currentMousePos))
         {
-            mouseHoverBinding.Value.Invoke(_currentMousePos, _prevMousePos);
-        }
+            foreach (var mouseHoverBinding in _mouseHoverBindings)
+            {
+                mouseHoverBinding.Value.Invoke(_currentMousePos, _prevMousePos);
+            }
         
-        _prevMousePos = _currentMousePos;
+            _prevMousePos = _currentMousePos;
+        }
     }
 
     public void BindAxis(Object contextObject, Key key, Action action)

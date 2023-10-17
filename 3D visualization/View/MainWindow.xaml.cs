@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,9 @@ namespace _3D_visualization;
 /// </summary>
 public partial class MainWindow : Window
 {
+    [DllImport("User32.dll")]
+    private static extern bool SetCursorPos(int X, int Y);
+    
     private ApplicationViewModel _applicationViewModel;
     public MainWindow()
     {
@@ -40,6 +44,8 @@ public partial class MainWindow : Window
     
     private void OpenGLControl_OpenGLInitialized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
+        // TODO remove
+        _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\try.txt");
         _applicationViewModel.Initialize(sender, openGlRoutedEventArgs);
     } 
 
@@ -69,7 +75,6 @@ public partial class MainWindow : Window
             }
         }
     }
-
 
     private void WireframeCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
@@ -118,16 +123,74 @@ public partial class MainWindow : Window
 
     private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
     {
-        _applicationViewModel.MouseHover(e.GetPosition(OpenGLControl));
+        if (OpenGLControl.Focusable)
+        {
+            //Mouse.OverrideCursor = Cursors.None;
+            
+            _applicationViewModel.MouseHover(e.GetPosition(OpenGLControl)); 
+            //SetCursor((int)App.Current.MainWindow.Width / 2, (int)App.Current.MainWindow.Height / 2);
+        }
     }
 
     private void OpenGLControl_KeyDown(object sender, KeyEventArgs e)
     {
-        _applicationViewModel.KeyDown(sender, e);
+        if (e.Key == Key.Escape)
+        {
+            Mouse.OverrideCursor = null;
+            OpenGLControl.Focusable = false;
+        }
+        
+        if (OpenGLControl.Focusable)
+        {
+            _applicationViewModel.KeyDown(sender, e);
+        }
     }
     
     private void OpenGLControl_KeyUp(object sender, KeyEventArgs e)
     {
-        _applicationViewModel.KeyUp(sender, e);
+        if (OpenGLControl.Focusable)
+        {
+            _applicationViewModel.KeyUp(sender, e);
+        }
+    }
+
+    private void OpenGLControl_SetFocus(object sender, MouseButtonEventArgs e)
+    {
+        OpenGLControl.Focusable = true;
+    }
+    
+    private static void SetCursor(int x, int y)
+    {
+        // Left boundary
+        var xL = (int)App.Current.MainWindow.Left;
+        // Right boundary
+        var xR = xL + (int)App.Current.MainWindow.Width;
+        // Top boundary
+        var yT = (int)App.Current.MainWindow.Top;
+        // Bottom boundary
+        var yB = yT + (int)App.Current.MainWindow.Height;
+
+        x += xL;
+        y += yT;
+
+        if (x < xL)
+        {
+            x = xL;
+        }
+        else if (x > xR)
+        {
+            x = xR;
+        }
+
+        if (y < yT)
+        {
+            y = yT;
+        }
+        else if (y > yB)
+        {
+            y = yB;
+        }
+
+        SetCursorPos(x, y);
     }
 }

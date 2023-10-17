@@ -49,8 +49,8 @@ public class ApplicationViewModel
 
     public void SetReplicationObjects(string fileName)
     {
-        ReplicationObject replicationObject = ReplicationParser.TryParse(fileName);
-        FiguresGenerator figuresGenerator = new FiguresGenerator(replicationObject);
+        var replicationData = ReplicationParser.TryParse(fileName);
+        ReplicationObject figuresGenerator = new ReplicationObject(replicationData);
         /*GlobalEnvironment.GetInstance.GetGlobalConfigurator().SceneController.Set*/
     }
 }

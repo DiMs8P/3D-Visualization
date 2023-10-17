@@ -72,8 +72,10 @@
             OpenGLInitialized="OpenGLControl_OpenGLInitialized"
             Resized="OpenGLControl_Resized"
             MouseMove="OpenGLControl_MouseMove"
+            MouseLeftButtonDown="OpenGLControl_SetFocus"
             FrameRate="60"
             DrawFPS="True"
+            Focusable="False"
         />
     </Grid>
 </Window>

@@ -8,7 +8,7 @@ namespace _3D_visualization.Model.Replication;
 
 public class ReplicationParser
 {
-    public static ReplicationObject TryParse(string fileName)
+    public static (List<Vector2>, List<Vector3>) TryParse(string fileName)
     {
         string[] lines = File.ReadAllLines(fileName);
 
@@ -17,20 +17,20 @@ public class ReplicationParser
             return ParseLines(lines);
         }
 
-        return null;
+        return (null, null);
     }
 
-    private static ReplicationObject ParseLines(string[] lines)
+    private static (List<Vector2>, List<Vector3>) ParseLines(string[] lines)
     {
-        ReplicationObject replicationObject = new ReplicationObject();
-
+        List<Vector2> section = new List<Vector2>();
+        List<Vector3> path = new List<Vector3>();
         for (int i = 0; i < lines.Length; i++)
         {
             string[] tokens = lines[i].Split(' ');
 
             if (tokens.Length == 2)
             {
-                replicationObject.Section.Add(
+                section.Add(
                     new Vector2(
                         float.Parse(tokens[0], CultureInfo.InvariantCulture),
                         float.Parse(tokens[1], CultureInfo.InvariantCulture)
@@ -40,7 +40,7 @@ public class ReplicationParser
             
             if (tokens.Length == 3)
             {
-                replicationObject.Path.Add(
+                path.Add(
                     new Vector3(
                         float.Parse(tokens[0], CultureInfo.InvariantCulture),
                         float.Parse(tokens[1], CultureInfo.InvariantCulture),
@@ -49,9 +49,13 @@ public class ReplicationParser
                 );
             }
         }
+        
+        if (path.Count < 2)
+        {
+            throw new ReplicationArgumentException(-1, "path can't contain 1 path point");
+        }
 
-
-        return replicationObject;
+        return (section, path);
     }
 
     public static bool IsFileValid(string[] lines)

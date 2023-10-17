@@ -23,6 +23,7 @@ public class CameraComponent : BaseComponent
 
     public void UpdateCameraComponent(OpenGL openGl)
     {
+        openGl.MatrixMode(OpenGL.GL_MODELVIEW);
         openGl.LoadIdentity();
 
         Vector3 cameraDir = Vector3.Add(_cameraPos, _cameraFront);
@@ -31,8 +32,6 @@ public class CameraComponent : BaseComponent
             _cameraPos.X, _cameraPos.Y, _cameraPos.Z,
             cameraDir.X, cameraDir.Y, cameraDir.Z,
             _cameraUp.X, _cameraUp.Y, _cameraUp.Z);
-
-        openGl.PushMatrix();
     }
     
     public void MoveRight()
@@ -59,6 +58,7 @@ public class CameraComponent : BaseComponent
     {
         double xoffset = currentMousePos.X - prevMousePos.X;
         double yoffset = prevMousePos.Y - currentMousePos.Y;
+        
         const float sensitivity = 0.15f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;

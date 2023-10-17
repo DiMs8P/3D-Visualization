@@ -1,5 +1,6 @@
 ﻿using _3D_visualization.Model.Components;
 using SharpGL;
+using SharpGL.SceneGraph;
 using SharpGL.WPF;
 
 namespace _3D_visualization.Model.Controllers;
@@ -7,6 +8,7 @@ namespace _3D_visualization.Model.Controllers;
 public class SceneController : IController
 {
     private CameraComponent _currentCameraComponent;
+    private List<RenderComponent> _renderComponents;
     private OpenGLControl _openGlControl;
     /*private List<BaseRenderObject> _renderObjects;*/
     
@@ -17,6 +19,12 @@ public class SceneController : IController
     {
         _openGlControl = openGlControl;
         _currentCameraComponent = new CameraComponent();
+        _renderComponents = new List<RenderComponent>();
+    }
+
+    public void RegisterRenderComponent(RenderComponent renderComponent)
+    {
+        _renderComponents.Add(renderComponent);
     }
 
     public void SetActiveCamera(CameraComponent cameraComponent)
@@ -32,102 +40,16 @@ public class SceneController : IController
     public void Update()
     {
         OpenGL gl = _openGlControl.OpenGL;
-
+        gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+        gl.LoadIdentity();
+        
         UpdateCameraView();
 
-        //  Clear the color and depth buffers.
-        gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+        foreach (var renderComponent in _renderComponents)
+        {
+            renderComponent.Render(gl);
+        }
 
-        //  Move the geometry into a fairly central position.
-        gl.Translate(-1.5f, 0.0f, -6.0f);
-
-        //  Draw a pyramid. First, rotate the modelview matrix.
-        gl.Rotate(rotatePyramid, 0.0f, 1.0f, 0.0f);
-
-        //  Start drawing triangles.
-        gl.Begin(OpenGL.GL_TRIANGLES);
-
-            gl.Color(1.0f, 0.0f, 0.0f);
-            gl.Vertex(0.0f, 1.0f, 0.0f);
-            gl.Color(0.0f, 1.0f, 0.0f);
-            gl.Vertex(-1.0f, -1.0f, 1.0f);
-            gl.Color(0.0f, 0.0f, 1.0f);
-            gl.Vertex(1.0f, -1.0f, 1.0f);
-
-            gl.Color(1.0f, 0.0f, 0.0f);
-            gl.Vertex(0.0f, 1.0f, 0.0f);
-            gl.Color(0.0f, 0.0f, 1.0f);
-            gl.Vertex(1.0f, -1.0f, 1.0f);
-            gl.Color(0.0f, 1.0f, 0.0f);
-            gl.Vertex(1.0f, -1.0f, -1.0f);
-
-            gl.Color(1.0f, 0.0f, 0.0f);
-            gl.Vertex(0.0f, 1.0f, 0.0f);
-            gl.Color(0.0f, 1.0f, 0.0f);
-            gl.Vertex(1.0f, -1.0f, -1.0f);
-            gl.Color(0.0f, 0.0f, 1.0f);
-            gl.Vertex(-1.0f, -1.0f, -1.0f);
-
-            gl.Color(1.0f, 0.0f, 0.0f);
-            gl.Vertex(0.0f, 1.0f, 0.0f);
-            gl.Color(0.0f, 0.0f, 1.0f);
-            gl.Vertex(-1.0f, -1.0f, -1.0f);
-            gl.Color(0.0f, 1.0f, 0.0f);
-            gl.Vertex(-1.0f, -1.0f, 1.0f);
-
-        gl.End();
-
-        //  Reset the modelview.
-        gl.PopMatrix();
-
-        //  Move into a more central position.
-        gl.Translate(1.5f, 0.0f, -7.0f);
-
-        //  Rotate the cube.
-        gl.Rotate(rquad, 1.0f, 1.0f, 1.0f);
-
-        //  Provide the cube colors and geometry.
-        gl.Begin(OpenGL.GL_QUADS);
-
-            gl.Color(0.0f, 1.0f, 0.0f);
-            gl.Vertex(1.0f, 1.0f, -1.0f);
-            gl.Vertex(-1.0f, 1.0f, -1.0f);
-            gl.Vertex(-1.0f, 1.0f, 1.0f);
-            gl.Vertex(1.0f, 1.0f, 1.0f);
-
-            gl.Color(1.0f, 0.5f, 0.0f);
-            gl.Vertex(1.0f, -1.0f, 1.0f);
-            gl.Vertex(-1.0f, -1.0f, 1.0f);
-            gl.Vertex(-1.0f, -1.0f, -1.0f);
-            gl.Vertex(1.0f, -1.0f, -1.0f);
-
-            gl.Color(1.0f, 0.0f, 0.0f);
-            gl.Vertex(1.0f, 1.0f, 1.0f);
-            gl.Vertex(-1.0f, 1.0f, 1.0f);
-            gl.Vertex(-1.0f, -1.0f, 1.0f);
-            gl.Vertex(1.0f, -1.0f, 1.0f);
-
-            gl.Color(1.0f, 1.0f, 0.0f);
-            gl.Vertex(1.0f, -1.0f, -1.0f);
-            gl.Vertex(-1.0f, -1.0f, -1.0f);
-            gl.Vertex(-1.0f, 1.0f, -1.0f);
-            gl.Vertex(1.0f, 1.0f, -1.0f);
-
-            gl.Color(0.0f, 0.0f, 1.0f);
-            gl.Vertex(-1.0f, 1.0f, 1.0f);
-            gl.Vertex(-1.0f, 1.0f, -1.0f);
-            gl.Vertex(-1.0f, -1.0f, -1.0f);
-            gl.Vertex(-1.0f, -1.0f, 1.0f);
-
-            gl.Color(1.0f, 0.0f, 1.0f);
-            gl.Vertex(1.0f, 1.0f, -1.0f);
-            gl.Vertex(1.0f, 1.0f, 1.0f);
-            gl.Vertex(1.0f, -1.0f, 1.0f);
-            gl.Vertex(1.0f, -1.0f, -1.0f);
-
-        gl.End();
-
-        //  Flush OpenGL.
         gl.Flush();
         
         rotatePyramid += 3.0f;
@@ -144,6 +66,7 @@ public class SceneController : IController
         /*openGLControl.Focus();*/
 
         OpenGL gl = _openGlControl.OpenGL;
+        gl.GetModelViewMatrix();
 
         gl.MatrixMode(OpenGL.GL_PROJECTION);
 
@@ -151,6 +74,9 @@ public class SceneController : IController
         gl.LoadIdentity();
         
         //  Create a perspective transformation.
+        
+        // Set Ortho projection
+        //gl.Ortho(-8.0, 8.0, -8.0, 8.0, 0.01, 100.0);
         gl.Perspective(60.0f, width / height, 0.01, 100.0);
 
         //  Set the modelview matrix.
