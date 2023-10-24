@@ -14,6 +14,10 @@ public class KeyboardInputsSystem : IEcsInitSystem, IEcsRunSystem
     
     [EcsInject] InputEventsListener _inputsEventsListener;
 
+    public KeyboardInputsSystem()
+    {
+        _pressedKeys = new HashSet<Key>();
+    }
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();

@@ -2,12 +2,12 @@
 
 namespace _3D_visualization.Model.SystemComponents.Transform.Components;
 
-public struct Transform
+public struct Location
 {
     public Vector3 Position;
 
-    public Transform()
+    public Location()
     {
-        Position = Vector3.Zero;
+        Position = new Vector3(0f, 0f, 3f);
     }
 }

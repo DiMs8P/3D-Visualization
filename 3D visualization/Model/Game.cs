@@ -3,6 +3,9 @@ using _3D_visualization.Model.Factory;
 using _3D_visualization.Model.Input;
 using _3D_visualization.Model.Input.Systems;
 using _3D_visualization.Model.SystemComponents.Initialization;
+using _3D_visualization.Model.SystemComponents.MainCamera.System;
+using _3D_visualization.Model.SystemComponents.Player.Input;
+using _3D_visualization.Model.SystemComponents.Spline.Systems;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL.WPF;
@@ -45,10 +48,25 @@ public class Game
             .Add(new MouseInputsSystem())
             .Inject(InputEventsListener)
             .Init();
+
+        _gameplaySystems = new EcsSystems(_world);
+        _gameplaySystems
+            .Add(new PlayerObservationSystem())
+            .Add(new PlayerMovementSystem())
+            .Init();
+
+        _renderSystems = new EcsSystems(_world);
+        _renderSystems
+            .Add(new MainCameraRenderSystem())
+            .Add(new SplineRenderSystem())
+            .Inject(GameplayEventsListener, openGlControl)
+            .Init();
     }
 
     public void Update(float deltaTime)
     {
         _inputSystems.Run();
+        _gameplaySystems.Run();
+        _renderSystems.Run();
     }
 }

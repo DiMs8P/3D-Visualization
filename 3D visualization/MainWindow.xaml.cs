@@ -51,7 +51,21 @@ public partial class MainWindow : Window
 
     private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        _applicationViewModel.Resized(Width, Height);
+        OpenGL gl = OpenGLControl.OpenGL;
+
+        gl.MatrixMode(OpenGL.GL_PROJECTION);
+
+        //  Load the identity.
+        gl.LoadIdentity();
+        
+        //  Create a perspective transformation.
+        
+        // Set Ortho projection
+        //gl.Ortho(-8.0, 8.0, -8.0, 8.0, 0.01, 100.0);
+        gl.Perspective(60.0f, OpenGLControl.ActualWidth / OpenGLControl.ActualHeight, 0.01, 100.0);
+
+        //  Set the modelview matrix.
+        gl.MatrixMode(OpenGL.GL_MODELVIEW);
     }
 
     private void Button_OpenFile(object sender, RoutedEventArgs e)
