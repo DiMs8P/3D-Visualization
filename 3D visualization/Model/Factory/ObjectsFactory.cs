@@ -38,18 +38,19 @@ public class ObjectsFactory
     {
         int entity = _world.NewEntity();
         
-        _timeComponent.Add(entity);
+        _timeComponent.Add(entity) = new TimeOffset();
     }
     
     public void CreatePlayer()
     {
         int entity = _world.NewEntity();
 
-        _mouseInputs.Add(entity);
-        _playerMarker.Add(entity);
-        _keyboardInputs.Add(entity);
-        _locationComponents.Add(entity);
-        _movementComponents.Add(entity);
+        _mouseInputs.Add(entity) = new MousePosition();
+        _playerMarker.Add(entity) = new PlayerMarker();
+        _keyboardInputs.Add(entity) = new KeyboardKeys();
+        _locationComponents.Add(entity) = new Location();
+        _rotationComponent.Add(entity) = new Rotation();
+        _movementComponents.Add(entity) = new Movement();
 
         CreatePlayerCamera();
     }
@@ -58,9 +59,9 @@ public class ObjectsFactory
     {
         int entity = _world.NewEntity();
         
-        _cameraComponents.Add(entity);
-        _locationComponents.Add(entity);
-        _rotationComponent.Add(entity);
-        _playerMarker.Add(entity);
+        _cameraComponents.Add(entity) = new Camera();
+        _locationComponents.Add(entity) = new Location();
+        _rotationComponent.Add(entity) = new Rotation();
+        _playerMarker.Add(entity) = new PlayerMarker();
     }
 }

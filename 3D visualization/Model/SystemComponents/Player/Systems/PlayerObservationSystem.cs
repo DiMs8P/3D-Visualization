@@ -2,6 +2,7 @@
 using _3D_visualization.Model.Input.Components;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
+using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 
 namespace _3D_visualization.Model.SystemComponents.Player.Input;
@@ -15,6 +16,9 @@ public class PlayerObservationSystem : IEcsInitSystem, IEcsRunSystem
     
     private EcsFilter _playerFilter;
     private EcsFilter _playerCameraFilter;
+    
+    private int _playerEntityId;
+    private int _playerCameraEntityId;
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();
@@ -25,32 +29,28 @@ public class PlayerObservationSystem : IEcsInitSystem, IEcsRunSystem
         _rotationComponent = world.GetPool<Rotation>();
         _cameraComponent = world.GetPool<Camera>();
         _mousePosition = world.GetPool<MousePosition>();
+
+        _playerEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_playerFilter);
+        _playerCameraEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_playerCameraFilter);
     }
 
     // TODO refactor
     public void Run(IEcsSystems systems)
     {
-        int playerId = 0;
-        int playerCameraId = 0;
-        foreach (int playerIds in _playerFilter)
-        {
-            playerId = playerIds;
-        }
-        
-        foreach (int playersCameraIds in _playerCameraFilter)
-        {
-            playerCameraId = playersCameraIds;
-        }
-
-        ref Location playerLocation = ref _locationComponent.Get(playerId);
-        ref Location cameraLocation = ref _locationComponent.Get(playerCameraId);
+        ref Location playerLocation = ref _locationComponent.Get(_playerEntityId);
+        ref Location cameraLocation = ref _locationComponent.Get(_playerCameraEntityId);
         cameraLocation.Position = playerLocation.Position;
 
-        ref MousePosition mousePosition = ref _mousePosition.Get(playerId);
-        ref Rotation cameraRotation = ref _rotationComponent.Get(playerCameraId);
-        ref Camera camera = ref _cameraComponent.Get(playerCameraId);
-
+        ref MousePosition mousePosition = ref _mousePosition.Get(_playerEntityId);
+        ref Rotation cameraRotation = ref _rotationComponent.Get(_playerCameraEntityId);
+        ref Rotation playerRotation = ref _rotationComponent.Get(_playerEntityId);
+        ref Camera camera = ref _cameraComponent.Get(_playerCameraEntityId);
+        
         UpdateCameraView(ref camera, ref cameraRotation, ref mousePosition);
+        
+        playerRotation.ForwardVector = cameraRotation.ForwardVector;
+        playerRotation.UpVector = cameraRotation.UpVector;
+        playerRotation.RightVector = cameraRotation.RightVector;
     }
 
     private void UpdateCameraView(ref Camera camera, ref Rotation cameraRotation, ref MousePosition mousePosition)
