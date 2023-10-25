@@ -6,6 +6,6 @@ public struct Movement
 
     public Movement()
     {
-        Speed = 0.05f;
+        Speed = 2.5f;
     }
 }

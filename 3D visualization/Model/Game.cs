@@ -1,12 +1,13 @@
 ﻿using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Factory;
-using _3D_visualization.Model.Input;
 using _3D_visualization.Model.Input.Systems;
 using _3D_visualization.Model.SystemComponents.Input.Systems;
 using _3D_visualization.Model.SystemComponents.MainCamera.System;
+using _3D_visualization.Model.SystemComponents.Markers;
 using _3D_visualization.Model.SystemComponents.Player.Systems;
 using _3D_visualization.Model.SystemComponents.Spline.Systems;
 using _3D_visualization.Model.SystemComponents.World.System;
+using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL.WPF;
@@ -21,9 +22,12 @@ public class Game
 
     private EcsWorld _world;
     private EcsSystems _setupSystems;
+    private EcsSystems _timeSystems;
     private EcsSystems _inputSystems;
     private EcsSystems _gameplaySystems;
     private EcsSystems _renderSystems;
+
+    private DeltaTimeUpdateSystem _deltaTimeUpdateSystem;
     public Game(OpenGLControl openGlControl)
     {
         InitializeSystems(openGlControl);
@@ -36,13 +40,19 @@ public class Game
         Factory = new ObjectsFactory(_world);
         GameplayEventsListener = new GameplayEventsListener();
         InputEventsListener = new InputEventsListener();
+        _deltaTimeUpdateSystem = new DeltaTimeUpdateSystem();
 
         _setupSystems = new EcsSystems(_world);
         _setupSystems
             .Add(new InitEnvironmentSystem())
             .Inject(Factory)
             .Init();
-        
+
+        _timeSystems = new EcsSystems(_world);
+        _timeSystems
+            .Add(_deltaTimeUpdateSystem)
+            .Init();
+
         _inputSystems = new EcsSystems(_world);
         _inputSystems
             .Add(new KeyboardInputsSystem())
@@ -67,6 +77,9 @@ public class Game
 
     public void Update(float deltaTime)
     {
+        _deltaTimeUpdateSystem.SetDeltaTime(deltaTime);
+        
+        _timeSystems.Run();
         _inputSystems.Run();
         _gameplaySystems.Run();
         _renderSystems.Run();
