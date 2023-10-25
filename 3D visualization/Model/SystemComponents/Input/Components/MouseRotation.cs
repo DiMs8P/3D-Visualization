@@ -2,7 +2,7 @@
 
 public struct MouseRotation
 {
-    public float Sensitivity;
+    public readonly float Sensitivity;
     public float Yaw;
     public float Pitch;
 

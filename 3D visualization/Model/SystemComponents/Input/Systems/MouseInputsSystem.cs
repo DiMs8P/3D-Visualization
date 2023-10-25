@@ -42,14 +42,14 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
         mousePosition.CurrentMousePosition = _currentMousePosition;
         mousePosition.PreviousMousePosition = _previousMousePosition;
         
-        double xoffset = _currentMousePosition.X - _previousMousePosition.X;
-        double yoffset = _previousMousePosition.Y - _currentMousePosition.Y;
+        double xOffset = _currentMousePosition.X - _previousMousePosition.X;
+        double yOffset = _previousMousePosition.Y - _currentMousePosition.Y;
         
-        xoffset *= mouseRotation.Sensitivity;
-        yoffset *= mouseRotation.Sensitivity;
+        xOffset *= mouseRotation.Sensitivity;
+        yOffset *= mouseRotation.Sensitivity;
         
-        mouseRotation.Yaw   += (float)xoffset;
-        mouseRotation.Pitch += (float)yoffset;
+        mouseRotation.Yaw   += (float)xOffset;
+        mouseRotation.Pitch += (float)yOffset;
         
         if(mouseRotation.Pitch > 89.0f)
             mouseRotation.Pitch =  89.0f;

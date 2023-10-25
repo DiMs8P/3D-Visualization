@@ -2,10 +2,11 @@
 using _3D_visualization.Model.Factory;
 using _3D_visualization.Model.Input;
 using _3D_visualization.Model.Input.Systems;
-using _3D_visualization.Model.SystemComponents.Initialization;
+using _3D_visualization.Model.SystemComponents.Input.Systems;
 using _3D_visualization.Model.SystemComponents.MainCamera.System;
-using _3D_visualization.Model.SystemComponents.Player.Input;
+using _3D_visualization.Model.SystemComponents.Player.Systems;
 using _3D_visualization.Model.SystemComponents.Spline.Systems;
+using _3D_visualization.Model.SystemComponents.World.System;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL.WPF;

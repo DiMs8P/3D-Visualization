@@ -5,10 +5,11 @@ using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 
-namespace _3D_visualization.Model.Input.Systems;
+namespace _3D_visualization.Model.SystemComponents.Input.Systems;
 
 public class KeyboardInputsSystem : IEcsInitSystem, IEcsRunSystem
 {
+    [EcsInject] InputEventsListener _inputsEventsListener;
     private EcsPool<KeyboardKeys> _keyboardInputComponent;
     private EcsFilter _keyboardInputs;
 
@@ -16,12 +17,7 @@ public class KeyboardInputsSystem : IEcsInitSystem, IEcsRunSystem
 
     private int _keyboardInputEntityId;
     
-    [EcsInject] InputEventsListener _inputsEventsListener;
-
-    public KeyboardInputsSystem()
-    {
-        _pressedKeys = new HashSet<Key>();
-    }
+    public KeyboardInputsSystem() => _pressedKeys = new HashSet<Key>();
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();

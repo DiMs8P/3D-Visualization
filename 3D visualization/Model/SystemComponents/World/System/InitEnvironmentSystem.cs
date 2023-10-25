@@ -2,7 +2,7 @@
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 
-namespace _3D_visualization.Model.SystemComponents.Initialization;
+namespace _3D_visualization.Model.SystemComponents.World.System;
 
 public class InitEnvironmentSystem : IEcsInitSystem
 {

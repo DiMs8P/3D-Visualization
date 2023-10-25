@@ -4,7 +4,7 @@ using _3D_visualization.Model.SystemComponents.Transform.Components;
 using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 
-namespace _3D_visualization.Model.SystemComponents.Player.Input;
+namespace _3D_visualization.Model.SystemComponents.Player.Systems;
 
 public class PlayerObservationSystem : IEcsInitSystem, IEcsRunSystem
 {

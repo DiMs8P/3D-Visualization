@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
-using _3D_visualization.Model.SystemComponents.Player;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
 using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
