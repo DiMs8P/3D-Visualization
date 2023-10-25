@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using _3D_visualization.Model.Input.Components;
+using _3D_visualization.Model.SystemComponents.Input.Components;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
 using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;

@@ -1,6 +1,5 @@
 ﻿using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Factory;
-using _3D_visualization.Model.Input.Systems;
 using _3D_visualization.Model.SystemComponents.Input.Systems;
 using _3D_visualization.Model.SystemComponents.MainCamera.System;
 using _3D_visualization.Model.SystemComponents.Markers;

@@ -1,11 +1,12 @@
 ﻿using System.Windows;
 using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Input.Components;
+using _3D_visualization.Model.SystemComponents.Input.Components;
 using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 
-namespace _3D_visualization.Model.Input.Systems;
+namespace _3D_visualization.Model.SystemComponents.Input.Systems;
 
 public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
 {

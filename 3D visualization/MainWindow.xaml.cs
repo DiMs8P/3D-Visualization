@@ -1,22 +1,12 @@
-﻿using System.Diagnostics;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using _3D_visualization.Exception;
 using _3D_visualization.ViewModel;
 using Microsoft.Win32;
 using SharpGL;
 using SharpGL.WPF;
-using Vector = System.Windows.Vector;
 
 namespace _3D_visualization;
 
