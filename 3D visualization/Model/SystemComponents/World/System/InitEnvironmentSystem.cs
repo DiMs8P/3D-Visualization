@@ -15,7 +15,8 @@ public class InitEnvironmentSystem : IEcsInitSystem
 
     private void CreateSingletonComponents(ObjectsFactory objectsFactory)
     {
-        objectsFactory.CreateTimeComponent();
+        objectsFactory.CreateTimePresence();
+        objectsFactory.CreateInputPresence();
     }
     
     private void CreatePlayer(ObjectsFactory objectsFactory)

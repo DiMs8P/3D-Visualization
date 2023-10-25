@@ -13,21 +13,20 @@ namespace _3D_visualization.Model.SystemComponents.MainCamera.System;
 public class MainCameraRenderSystem : IEcsInitSystem, IEcsRunSystem
 {
     [EcsInject] private OpenGLControl _openGlControl;
-    private EcsPool<Location> _locationComponent;
-    private EcsPool<Rotation> _rotationComponent;
-    private EcsPool<Camera> _cameraComponent;
+    private EcsPool<Location> _locationComponents;
+    private EcsPool<Rotation> _rotationComponents;
+    
+    private EcsFilter _playerCameraFilter;
     
     private int _mainCameraEntityId;
     
-    private EcsFilter _playerCameraFilter;
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();
-        _playerCameraFilter = world.Filter<PlayerMarker>().Inc<Location>().Inc<Rotation>().Inc<Camera>().End();
+        _playerCameraFilter = world.Filter<CameraMarker>().End();
 
-        _locationComponent = world.GetPool<Location>();
-        _rotationComponent = world.GetPool<Rotation>();
-        _cameraComponent = world.GetPool<Camera>();
+        _locationComponents = world.GetPool<Location>();
+        _rotationComponents = world.GetPool<Rotation>();
         
         _mainCameraEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_playerCameraFilter);
         
@@ -56,8 +55,8 @@ public class MainCameraRenderSystem : IEcsInitSystem, IEcsRunSystem
 
     private void UpdateCameraView(OpenGL openGl)
     {
-        ref Location cameraLocation = ref _locationComponent.Get(_mainCameraEntityId);
-        ref Rotation cameraRotation = ref _rotationComponent.Get(_mainCameraEntityId);
+        ref Location cameraLocation = ref _locationComponents.Get(_mainCameraEntityId);
+        ref Rotation cameraRotation = ref _rotationComponents.Get(_mainCameraEntityId);
         
         openGl.MatrixMode(OpenGL.GL_MODELVIEW);
         openGl.LoadIdentity();

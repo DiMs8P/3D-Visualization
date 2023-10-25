@@ -1,12 +1,12 @@
-﻿namespace _3D_visualization.Model.SystemComponents.MainCamera.Components;
+﻿namespace _3D_visualization.Model.Input.Components;
 
-public struct Camera
+public struct MouseRotation
 {
     public float Sensitivity;
     public float Yaw;
     public float Pitch;
 
-    public Camera()
+    public MouseRotation()
     {
         Sensitivity = 0.15f;
         Yaw = -90.0f;

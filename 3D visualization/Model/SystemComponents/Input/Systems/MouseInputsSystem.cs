@@ -9,8 +9,11 @@ namespace _3D_visualization.Model.Input.Systems;
 
 public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
 {
+    private EcsPool<MousePosition> _mousePositionComponent;
+    private EcsPool<MouseRotation> _mouseRotationComponent;
+    
     private EcsFilter _mouseInputs;
-    private EcsPool<MousePosition> _mouseInputsPool;
+    
     private Point _previousMousePosition;
     private Point _currentMousePosition;
     
@@ -21,7 +24,8 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
     {
         EcsWorld world = systems.GetWorld();
         _mouseInputs = world.Filter<MousePosition>().End();
-        _mouseInputsPool = world.GetPool<MousePosition>();
+        _mousePositionComponent = world.GetPool<MousePosition>();
+        _mouseRotationComponent = world.GetPool<MouseRotation>();
         _inputsEventsListener.OnMouseMoveEvent += point =>
         {
             _previousMousePosition = _currentMousePosition;
@@ -33,9 +37,23 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
 
     public void Run(IEcsSystems systems)
     {
-        ref MousePosition mousePosition = ref _mouseInputsPool.Get(_mouseInputEntityId);
+        ref MousePosition mousePosition = ref _mousePositionComponent.Get(_mouseInputEntityId);
+        ref MouseRotation mouseRotation = ref _mouseRotationComponent.Get(_mouseInputEntityId);
         mousePosition.CurrentMousePosition = _currentMousePosition;
         mousePosition.PreviousMousePosition = _previousMousePosition;
-
+        
+        double xoffset = _currentMousePosition.X - _previousMousePosition.X;
+        double yoffset = _previousMousePosition.Y - _currentMousePosition.Y;
+        
+        xoffset *= mouseRotation.Sensitivity;
+        yoffset *= mouseRotation.Sensitivity;
+        
+        mouseRotation.Yaw   += (float)xoffset;
+        mouseRotation.Pitch += (float)yoffset;
+        
+        if(mouseRotation.Pitch > 89.0f)
+            mouseRotation.Pitch =  89.0f;
+        if(mouseRotation.Pitch < -89.0f)
+            mouseRotation.Pitch = -89.0f;
     }
 }

@@ -9,8 +9,9 @@ namespace _3D_visualization.Model.Input.Systems;
 
 public class KeyboardInputsSystem : IEcsInitSystem, IEcsRunSystem
 {
+    private EcsPool<KeyboardKeys> _keyboardInputComponent;
     private EcsFilter _keyboardInputs;
-    private EcsPool<KeyboardKeys> _keyboardInputsPool;
+
     private HashSet<Key> _pressedKeys;
 
     private int _keyboardInputEntityId;
@@ -25,7 +26,7 @@ public class KeyboardInputsSystem : IEcsInitSystem, IEcsRunSystem
     {
         EcsWorld world = systems.GetWorld();
         _keyboardInputs = world.Filter<KeyboardKeys>().End();
-        _keyboardInputsPool = world.GetPool<KeyboardKeys>();
+        _keyboardInputComponent = world.GetPool<KeyboardKeys>();
         _inputsEventsListener.OnKeyPressedEvent += key => _pressedKeys.Add(key);
         _inputsEventsListener.OnKeyReleasedEvent += key => _pressedKeys.Remove(key);
 
@@ -34,7 +35,7 @@ public class KeyboardInputsSystem : IEcsInitSystem, IEcsRunSystem
 
     public void Run(IEcsSystems systems)
     {
-        ref var keyboardInput = ref _keyboardInputsPool.Get(_keyboardInputEntityId);
+        ref var keyboardInput = ref _keyboardInputComponent.Get(_keyboardInputEntityId);
         keyboardInput.PressedKeys = _pressedKeys;   
     }
 }

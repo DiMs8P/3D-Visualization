@@ -9,39 +9,43 @@ namespace _3D_visualization.Model.SystemComponents.Player.Input;
 
 public class PlayerMovementSystem : IEcsInitSystem, IEcsRunSystem
 {
-    private EcsPool<Location> _locationComponent;
-    private EcsPool<Rotation> _rotationComponent;
-    private EcsPool<Movement> _movementComponent;
-    private EcsPool<KeyboardKeys> _pressedKeys;
+    private EcsPool<Location> _locationComponents;
+    private EcsPool<Rotation> _rotationComponents;
+    private EcsPool<Movement> _movementComponents;
+    private EcsPool<KeyboardKeys> _keyboardInputComponent;
     
     private EcsFilter _playerFilter;
+    private EcsFilter _inputFilter;
     
     private int _playerEntityId;
+    private int _inputEntityId;
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();
-        _playerFilter = world.Filter<PlayerMarker>().Inc<Location>().Inc<Movement>().Inc<KeyboardKeys>().End();
+        _playerFilter = world.Filter<PlayerMarker>().End();
+        _inputFilter = world.Filter<MouseRotation>().Inc<MousePosition>().End();
 
-        _locationComponent = world.GetPool<Location>();
-        _rotationComponent = world.GetPool<Rotation>();
-        _movementComponent = world.GetPool<Movement>();
-        _pressedKeys = world.GetPool<KeyboardKeys>();
+        _locationComponents = world.GetPool<Location>();
+        _rotationComponents = world.GetPool<Rotation>();
+        _movementComponents = world.GetPool<Movement>();
+        _keyboardInputComponent = world.GetPool<KeyboardKeys>();
 
         _playerEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_playerFilter);
+        _inputEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_inputFilter);
     }
 
     public void Run(IEcsSystems systems)
     {
-        ref KeyboardKeys pressedKeys = ref _pressedKeys.Get(_playerEntityId);
+        ref KeyboardKeys pressedKeys = ref _keyboardInputComponent.Get(_inputEntityId);
 
         if (pressedKeys.PressedKeys.Count == 0)
         {
             return;
         }
             
-        ref Location playerLocation = ref _locationComponent.Get(_playerEntityId);
-        ref Rotation playerRotation = ref _rotationComponent.Get(_playerEntityId);
-        ref Movement playerMovement = ref _movementComponent.Get(_playerEntityId);
+        ref Location playerLocation = ref _locationComponents.Get(_playerEntityId);
+        ref Rotation playerRotation = ref _rotationComponents.Get(_playerEntityId);
+        ref Movement playerMovement = ref _movementComponents.Get(_playerEntityId);
 
         if (pressedKeys.PressedKeys.Contains(Key.W))
         {

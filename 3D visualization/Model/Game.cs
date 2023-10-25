@@ -53,6 +53,7 @@ public class Game
         _gameplaySystems
             .Add(new PlayerObservationSystem())
             .Add(new PlayerMovementSystem())
+            .Add(new CameraSystem())
             .Init();
 
         _renderSystems = new EcsSystems(_world);

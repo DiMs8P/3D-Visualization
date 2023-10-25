@@ -11,10 +11,11 @@ public class ObjectsFactory
 {
     protected EcsWorld _world;
 
-    protected EcsPool<Camera> _cameraComponents;
+    protected EcsPool<CameraMarker> _cameraComponents;
     protected EcsPool<TimeOffset> _timeComponent;
     protected EcsPool<PlayerMarker> _playerMarker;
-    protected EcsPool<MousePosition> _mouseInputs;
+    protected EcsPool<MousePosition> _mousePositions;
+    protected EcsPool<MouseRotation> _mouseRotations;
     protected EcsPool<KeyboardKeys> _keyboardInputs;
     protected EcsPool<Location> _locationComponents;
     protected EcsPool<Movement> _movementComponents;
@@ -24,30 +25,38 @@ public class ObjectsFactory
     {
         _world = world;
 
-        _cameraComponents = world.GetPool<Camera>();
+        _cameraComponents = world.GetPool<CameraMarker>();
         _timeComponent = world.GetPool<TimeOffset>();
         _playerMarker = world.GetPool<PlayerMarker>();
-        _mouseInputs = world.GetPool<MousePosition>();
+        _mousePositions = world.GetPool<MousePosition>();
+        _mouseRotations = world.GetPool<MouseRotation>();
         _keyboardInputs = world.GetPool<KeyboardKeys>();
         _locationComponents = world.GetPool<Location>();
         _movementComponents = world.GetPool<Movement>();
         _rotationComponent = world.GetPool<Rotation>();
     }
     
-    public void CreateTimeComponent()
+    public void CreateTimePresence()
     {
         int entity = _world.NewEntity();
         
         _timeComponent.Add(entity) = new TimeOffset();
     }
     
+    public void CreateInputPresence()
+    {
+        int entity = _world.NewEntity();
+        
+        _keyboardInputs.Add(entity) = new KeyboardKeys();
+        _mousePositions.Add(entity) = new MousePosition();
+        _mouseRotations.Add(entity) = new MouseRotation();
+    }
+    
     public void CreatePlayer()
     {
         int entity = _world.NewEntity();
 
-        _mouseInputs.Add(entity) = new MousePosition();
         _playerMarker.Add(entity) = new PlayerMarker();
-        _keyboardInputs.Add(entity) = new KeyboardKeys();
         _locationComponents.Add(entity) = new Location();
         _rotationComponent.Add(entity) = new Rotation();
         _movementComponents.Add(entity) = new Movement();
@@ -59,9 +68,8 @@ public class ObjectsFactory
     {
         int entity = _world.NewEntity();
         
-        _cameraComponents.Add(entity) = new Camera();
+        _cameraComponents.Add(entity) = new CameraMarker();
         _locationComponents.Add(entity) = new Location();
         _rotationComponent.Add(entity) = new Rotation();
-        _playerMarker.Add(entity) = new PlayerMarker();
     }
 }
