@@ -40,6 +40,9 @@ public class MainCameraRenderSystem : IEcsInitSystem, IEcsRunSystem
         gl.LoadIdentity();
 
         UpdateCameraView(gl);
+        
+        gl.UseProgram(0);
+        gl.Flush();
     }
 
     private void UpdateCameraView(OpenGL openGl)

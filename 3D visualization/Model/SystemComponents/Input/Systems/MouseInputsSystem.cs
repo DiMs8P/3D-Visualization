@@ -10,6 +10,8 @@ namespace _3D_visualization.Model.SystemComponents.Input.Systems;
 
 public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
 {
+    [EcsInject] InputEventsListener _inputsEventsListener;
+
     private EcsPool<MousePosition> _mousePositionComponent;
     private EcsPool<MouseRotation> _mouseRotationComponent;
     
@@ -19,8 +21,6 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
     private Point _currentMousePosition;
     
     private int _mouseInputEntityId;
-    
-    [EcsInject] InputEventsListener _inputsEventsListener;
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();

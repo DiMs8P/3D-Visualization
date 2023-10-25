@@ -6,6 +6,7 @@ using _3D_visualization.Exception;
 using _3D_visualization.ViewModel;
 using Microsoft.Win32;
 using SharpGL;
+using SharpGL.Shaders;
 using SharpGL.WPF;
 
 namespace _3D_visualization;
@@ -34,6 +35,15 @@ public partial class MainWindow : Window
     
     private void OpenGLControl_OpenGLInitialized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
+        // TODO remove
+        OpenGL gl = OpenGLControl.OpenGL;
+        
+        uint shaderProg = gl.CreateProgram();
+        uint fragmentShader = gl.CreateShader(OpenGL.GL_FRAGMENT_SHADER);
+        gl.ShaderSource(fragmentShader, @"#version 330 core out vec4 FragColor; void main(){ FragColor = vec4(1.0); }");
+        gl.CompileShader(fragmentShader);
+        gl.AttachShader(shaderProg, fragmentShader);
+        
         // TODO remove
         _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\try.txt");
         _applicationViewModel.Initialize(sender, openGlRoutedEventArgs);

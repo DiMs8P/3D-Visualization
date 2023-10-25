@@ -76,6 +76,7 @@
             FrameRate="60"
             DrawFPS="True"
             Focusable="False"
+            RenderContextType="FBO"
         />
     </Grid>
 </Window>
