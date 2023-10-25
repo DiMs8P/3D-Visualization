@@ -28,8 +28,4 @@
       <ProjectReference Include="..\Ecs\Ecs.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Model\SystemComponents\Spline\Components\" />
-    </ItemGroup>
-
 </Project>

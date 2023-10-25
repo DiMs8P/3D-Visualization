@@ -3,6 +3,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using _3D_visualization.Model;
+using _3D_visualization.Model.Utils;
 using SharpGL;
 using SharpGL.WPF;
 using Timer = System.Timers.Timer;
@@ -51,5 +52,7 @@ public class ApplicationViewModel
 
     public void SetReplicationObjects(string fileName)
     {
+        var replicationData = SplineUtils.TryParse(fileName);
+        _game.Factory.CreateSpline(replicationData.Item1, replicationData.Item2);
     }
 }

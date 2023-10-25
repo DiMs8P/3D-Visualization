@@ -1,7 +1,9 @@
-﻿using _3D_visualization.Model.Input.Components;
+﻿using System.Numerics;
+using _3D_visualization.Model.Input.Components;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Markers;
 using _3D_visualization.Model.SystemComponents.Player;
+using _3D_visualization.Model.SystemComponents.Spline.Components;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
 using Leopotam.EcsLite;
 
@@ -20,6 +22,7 @@ public class ObjectsFactory
     protected EcsPool<Location> _locationComponents;
     protected EcsPool<Movement> _movementComponents;
     protected EcsPool<Rotation> _rotationComponent;
+    protected EcsPool<Spline> _splineComponents;
     
     public ObjectsFactory(EcsWorld world)
     {
@@ -34,6 +37,7 @@ public class ObjectsFactory
         _locationComponents = world.GetPool<Location>();
         _movementComponents = world.GetPool<Movement>();
         _rotationComponent = world.GetPool<Rotation>();
+        _splineComponents = world.GetPool<Spline>();
     }
     
     public void CreateTimePresence()
@@ -71,5 +75,12 @@ public class ObjectsFactory
         _cameraComponents.Add(entity) = new CameraMarker();
         _locationComponents.Add(entity) = new Location();
         _rotationComponent.Add(entity) = new Rotation();
+    }
+
+    public void CreateSpline(List<Vector2> section, List<Vector3> path)
+    {
+        int entity = _world.NewEntity();
+
+        _splineComponents.Add(entity) = new Spline(section, path);
     }
 }

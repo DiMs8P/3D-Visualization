@@ -40,16 +40,6 @@ public class MainCameraRenderSystem : IEcsInitSystem, IEcsRunSystem
         gl.LoadIdentity();
 
         UpdateCameraView(gl);
-        
-        gl.Begin(OpenGL.GL_TRIANGLES);
-            gl.Vertex(-1, -1, 0);
-            gl.Color(1, 0, 0);
-            gl.Vertex(1, -1, 0);
-            gl.Color(0, 1, 0);
-            gl.Vertex(0, 1, 0);
-            gl.Color(0, 0, 1);
-        gl.End();
-        gl.Flush();
     }
 
     private void UpdateCameraView(OpenGL openGl)
