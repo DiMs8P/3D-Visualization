@@ -28,4 +28,8 @@
       <ProjectReference Include="..\Ecs\Ecs.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Include="Source\basic_lightning_fragment.txt" />
+    </ItemGroup>
+
 </Project>

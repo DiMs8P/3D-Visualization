@@ -73,6 +73,7 @@ public class Game
             .Add(new OpenGlPreRunSystem())
             .Add(new MainCameraRenderSystem())
             .Add(new LightningRenderSystem())
+            .Add(new SplineRenderSystem())
             .Add(new OpenGlPostRunSystem())
             .Inject(GameplayEventsListener, openGlControl)
             .Init();

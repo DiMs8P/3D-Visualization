@@ -38,7 +38,7 @@ public partial class MainWindow : Window
         OpenGLControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
         
         _applicationViewModel.Initialize(OpenGLControl, 60);
-        _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\try.txt");
+        _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\splineData.txt");
     } 
 
     private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
