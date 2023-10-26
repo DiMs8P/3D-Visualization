@@ -4,6 +4,7 @@ using _3D_visualization.Model.SystemComponents.Input.Systems;
 using _3D_visualization.Model.SystemComponents.MainCamera.System;
 using _3D_visualization.Model.SystemComponents.Markers;
 using _3D_visualization.Model.SystemComponents.Player.Systems;
+using _3D_visualization.Model.SystemComponents.Render;
 using _3D_visualization.Model.SystemComponents.Spline.Systems;
 using _3D_visualization.Model.SystemComponents.World.System;
 using _3D_visualization.Model.Utils;
@@ -69,8 +70,10 @@ public class Game
 
         _renderSystems = new EcsSystems(_world);
         _renderSystems
+            .Add(new OpenGlPreRunSystem())
             .Add(new MainCameraRenderSystem())
-            .Add(new SplineRenderSystem())
+            .Add(new LightningRenderSystem())
+            .Add(new OpenGlPostRunSystem())
             .Inject(GameplayEventsListener, openGlControl)
             .Init();
     }

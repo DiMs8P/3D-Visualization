@@ -14,7 +14,8 @@ public class ApplicationViewModel
 {
     private Game _game;
     private GameLoop _gameLoop;
-    public ApplicationViewModel(OpenGLControl openGlControl, int fps = 120)
+
+    public void Initialize(OpenGLControl openGlControl, int fps = 120)
     {
         _game = new Game(openGlControl);
 
@@ -23,18 +24,16 @@ public class ApplicationViewModel
         _gameLoop.Start();
     }
 
-    public void Update(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
+    public void Stop()
     {
+        _gameLoop.Start();
     }
-
-    public void Initialize(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
+    
+    public void Start()
     {
+        _gameLoop.Start();
     }
-
-    public void Resized(double width, double height)
-    {
-    }
-
+    
     public void KeyDown(object sender, KeyEventArgs keyEventArgs)
     {
         _game.InputEventsListener.InvokeOnKeyPressed(keyEventArgs.Key);

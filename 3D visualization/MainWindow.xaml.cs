@@ -24,29 +24,21 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         
-        _applicationViewModel = new ApplicationViewModel(OpenGLControl, 60);
+        _applicationViewModel = new ApplicationViewModel();
         DataContext = _applicationViewModel;
     }
     
     private void OpenGLControl_OpenGLDraw(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        _applicationViewModel.Update(sender, openGlRoutedEventArgs);
     }
     
     private void OpenGLControl_OpenGLInitialized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
         // TODO remove
-        OpenGL gl = OpenGLControl.OpenGL;
+        OpenGLControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
         
-        uint shaderProg = gl.CreateProgram();
-        uint fragmentShader = gl.CreateShader(OpenGL.GL_FRAGMENT_SHADER);
-        gl.ShaderSource(fragmentShader, @"#version 330 core out vec4 FragColor; void main(){ FragColor = vec4(1.0); }");
-        gl.CompileShader(fragmentShader);
-        gl.AttachShader(shaderProg, fragmentShader);
-        
-        // TODO remove
+        _applicationViewModel.Initialize(OpenGLControl, 60);
         _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\try.txt");
-        _applicationViewModel.Initialize(sender, openGlRoutedEventArgs);
     } 
 
     private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)

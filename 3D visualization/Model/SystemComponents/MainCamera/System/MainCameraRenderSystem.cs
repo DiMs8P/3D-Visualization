@@ -28,21 +28,13 @@ public class MainCameraRenderSystem : IEcsInitSystem, IEcsRunSystem
         _rotationComponents = world.GetPool<Rotation>();
         
         _mainCameraEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_playerCameraFilter);
-        
-        _openGlControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
     }
 
     public void Run(IEcsSystems systems)
     {
         OpenGL gl = _openGlControl.OpenGL;
-        
-        gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-        gl.LoadIdentity();
 
         UpdateCameraView(gl);
-        
-        gl.UseProgram(0);
-        gl.Flush();
     }
 
     private void UpdateCameraView(OpenGL openGl)
