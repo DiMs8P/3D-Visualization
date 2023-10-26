@@ -54,9 +54,10 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
     };
 
     private Shader _lightingShader;
+    private Shader _lampShader;
     private uint _lightVAO;
     private uint _cubeVAO;
-    
+
     public void Init(IEcsSystems systems)
     {
         OpenGL gl = _openGlControl.OpenGL;
@@ -65,6 +66,12 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
             gl,
             "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_vertex.txt",
             "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_fragment.txt"
+        );
+        
+        _lampShader = new Shader(
+            gl,
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\lamp_vertex.txt",
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\lamp_fragment.txt"
         );
         
         uint[] VBO = new uint[1];
@@ -101,6 +108,13 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         OpenGL gl = _openGlControl.OpenGL;
         
         gl.PushMatrix();
+        
+        _lampShader.Use();
+        _lampShader.SetMat4("projection", gl.GetProjectionMatrix().AsRowMajorArrayFloat);
+        _lampShader.SetMat4("modelview", gl.GetModelViewMatrix().AsRowMajorArrayFloat);
+
+        gl.BindVertexArray(_lightVAO);
+        gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
         
         _lightingShader.Use();
         _lightingShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
