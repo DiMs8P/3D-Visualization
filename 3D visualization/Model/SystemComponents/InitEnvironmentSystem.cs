@@ -8,7 +8,7 @@ using _3D_visualization.Model.SystemComponents.Transform.Components;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 
-namespace _3D_visualization.Model.SystemComponents.World.System;
+namespace _3D_visualization.Model.SystemComponents;
 
 public class InitEnvironmentSystem : IEcsInitSystem
 {
@@ -60,7 +60,9 @@ public class InitEnvironmentSystem : IEcsInitSystem
 
     private void CreateLampLight(ObjectsFactory objectsFactory)
     {
-        
-        
+        /*objectsFactory.Create()
+            .Add<SpotLight>
+            .Add<Location>(new Location())
+            .End();*/
     }
 }

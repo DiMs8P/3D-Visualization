@@ -1,13 +1,12 @@
 ﻿using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Factory;
+using _3D_visualization.Model.SystemComponents;
 using _3D_visualization.Model.SystemComponents.Input.Systems;
 using _3D_visualization.Model.SystemComponents.MainCamera.System;
 using _3D_visualization.Model.SystemComponents.Markers;
 using _3D_visualization.Model.SystemComponents.Player.Systems;
 using _3D_visualization.Model.SystemComponents.Render;
 using _3D_visualization.Model.SystemComponents.Spline.Systems;
-using _3D_visualization.Model.SystemComponents.World.System;
-using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL.WPF;
@@ -40,6 +39,7 @@ public class Game
         Factory = new ObjectsFactory(_world);
         GameplayEventsListener = new GameplayEventsListener();
         InputEventsListener = new InputEventsListener();
+        
         _deltaTimeUpdateSystem = new DeltaTimeUpdateSystem();
 
         _setupSystems = new EcsSystems(_world);
