@@ -29,7 +29,6 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
         foreach (var splineEntityId in _splineFilter)
         {
             ref Components.Spline spline = ref _splineComponents.Get(splineEntityId);
-            
             _shaderManager.UseSplineShader();
             DrawSpline(ref spline, _openGlControl.OpenGL);
             

@@ -35,6 +35,8 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
                 UpdateSplinePointsNormals(ref spline);
                 UpdateSplinePointsColors(ref spline);
                 UpdateSplinePointsTexCoords(ref spline);
+
+                FillData(ref spline);
             }
         }
     }
@@ -90,6 +92,10 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             point.Z += spline.Path[0].Z;
             
             spline.PointsLocation[0][i] = point;
+            
+            spline.VBOdata[i * 11] = point.X;
+            spline.VBOdata[i * 11 + 1] = point.Y;
+            spline.VBOdata[i * 11 + 2] = point.Z;
         }
     }
 
@@ -239,5 +245,31 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         }
         
         _autoMapper2D.Finish();
+    }
+    
+    private void FillData(ref Components.Spline spline)
+    {
+        InitializeBottomVBOData(ref spline);
+        
+        for (int i = 1; i < spline.Path.Count - 1; i++)
+        {
+            InitializeCenterVBOData(ref spline, i);
+        }
+        
+        InitializeTopVBOData(ref spline);
+    }
+
+    private void InitializeTopVBOData(ref Components.Spline spline)
+    {
+        
+    }
+
+    private void InitializeCenterVBOData(ref Components.Spline spline, int currentLocation)
+    {
+        
+    }
+
+    private void InitializeBottomVBOData(ref Components.Spline spline)
+    {
     }
 }

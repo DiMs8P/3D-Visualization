@@ -11,6 +11,8 @@ public struct Spline
     public List<Vector3> PointsColor;
     public List<Vector2> TexCoords;
 
+    public float[] VBOdata;
+
     public Spline(List<Vector2> section, List<Vector3> path)
     {
         Section = section;
@@ -19,5 +21,8 @@ public struct Spline
         Normals = new List<Vector3>();
         PointsColor = new List<Vector3>();
         TexCoords = new List<Vector2>();
+
+        VBOdata = new float[11 * ((2 * section.Count()) +
+                                  (4 * (path.Count() - 1) * section.Count()))];
     }
 }
