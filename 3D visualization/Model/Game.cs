@@ -1,4 +1,5 @@
-﻿using _3D_visualization.Model.Events;
+﻿using _3D_visualization.Model.Environment;
+using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Factory;
 using _3D_visualization.Model.SystemComponents;
 using _3D_visualization.Model.SystemComponents.Input.Systems;
@@ -60,12 +61,14 @@ public class Game
             .Inject(InputEventsListener)
             .Init();
 
+        // TODO remove auto mapper
         _gameplaySystems = new EcsSystems(_world);
         _gameplaySystems
             .Add(new PlayerObservationSystem())
             .Add(new PlayerMovementSystem())
             .Add(new CameraSystem())
             .Add(new SplineTransformSystem())
+            .Inject(new AutoMapper2D())
             .Init();
 
         _renderSystems = new EcsSystems(_world);
@@ -75,7 +78,7 @@ public class Game
             .Add(new LightningRenderSystem())
             .Add(new SplineRenderSystem())
             .Add(new OpenGlPostRunSystem())
-            .Inject(GameplayEventsListener, openGlControl)
+            .Inject(GameplayEventsListener, new ShaderManager(_world, openGlControl), openGlControl)
             .Init();
     }
 

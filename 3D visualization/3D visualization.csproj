@@ -32,8 +32,4 @@
       <None Include="Source\basic_lightning_fragment.txt" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Model\SystemComponents\Light\" />
-    </ItemGroup>
-
 </Project>

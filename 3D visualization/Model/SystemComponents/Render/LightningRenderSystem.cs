@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using _3D_visualization.Model.Environment;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL;
@@ -10,6 +11,8 @@ namespace _3D_visualization.Model.SystemComponents.Render;
 public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
 {
     [EcsInject] private OpenGLControl _openGlControl;
+    [EcsInject] private ShaderManager _shaderManager;
+    
     float[] _vertices = new[] {
         -1f, -1f, -1f,  0.0f,  0.0f, -1.0f,
         1f, -1f, -1f,  0.0f,  0.0f, -1.0f,
@@ -55,10 +58,9 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
     };
 
     private Shader _lightingShader;
-    private Shader _lampShader;
     private uint _lightVAO;
 
-    private Vector3 _lightPos = new(1.2f, 1.0f, 0.0f);
+    private Vector3 _lightPos = new(1.2f, 1.0f, 1.0f);
 
     public void Init(IEcsSystems systems)
     {
@@ -68,12 +70,6 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
             gl,
             "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_vertex.txt",
             "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_fragment.txt"
-        );
-        
-        _lampShader = new Shader(
-            gl,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\lamp_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\lamp_fragment.txt"
         );
         
         uint[] lightVBO = new uint[1];
@@ -104,9 +100,7 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         gl.Translate(_lightPos.X, _lightPos.Y, _lightPos.Z);
         gl.Scale(0.1, 0.1, 0.1);
         
-        _lampShader.Use();
-        _lampShader.SetMat4("projection", gl.GetProjectionMatrix().AsRowMajorArrayFloat);
-        _lampShader.SetMat4("modelview", gl.GetModelViewMatrix().AsRowMajorArrayFloat);
+        _shaderManager.UseLampShader();
 
         gl.BindVertexArray(_lightVAO);
         gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
@@ -123,6 +117,5 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         
         _lightingShader.SetMat4("projection", gl.GetProjectionMatrix().AsRowMajorArrayFloat);
         _lightingShader.SetMat4("modelview", gl.GetModelViewMatrix().AsRowMajorArrayFloat);
-        
     }
 }
