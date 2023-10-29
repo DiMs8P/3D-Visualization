@@ -16,6 +16,7 @@ public class ShaderManager
     private EcsWorld _world;
     
     [EcsPool] EcsPool<Location> _locationComponents;
+    [EcsPool] EcsPool<Rotation> _rotationComponents;
     
     [EcsPool] EcsPool<DirectionalLight> _directionalLightComponents;
     [EcsPool] EcsPool<PointLight> _pointLightComponents;
@@ -48,6 +49,7 @@ public class ShaderManager
         _spotLightFilter = world.Filter<SpotLight>().End();
         
         _locationComponents = world.GetPool<Location>();
+        _rotationComponents = world.GetPool<Rotation>();
         _directionalLightComponents = world.GetPool<DirectionalLight>();
         
         _pointLightComponents = world.GetPool<PointLight>();
@@ -86,20 +88,29 @@ public class ShaderManager
         _openGlControl.OpenGL.UseProgram(0);
     }
 
-    public void UseLampShader()
+    public Shader UseLampShader()
     {
         _lampShader.Use();
-        _lampShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
-        _lampShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
+
+        return _lampShader;
     }
 
-    public void UseSuperRealisticShader()
+    public Shader UseSuperRealisticShader()
     {
         _splineShader.Use();
+        
+        _splineShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
+        _splineShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
+        
+        ref Location cameraLocation = ref _locationComponents.Get(_mainCameraEntityId);
+        _splineShader.SetVec3("viewPos", cameraLocation.Position.X, cameraLocation.Position.Y, cameraLocation.Position.Z);
+        _splineShader.SetFloat("material.shininess", 32.0f);
 
         SetUniformDirectionalsLightVariables();
         SetUniformPointLightsVariables();
         SetUniformSpotLightsVariables();
+
+        return _lampShader;
     }
 
     private void SetUniformDirectionalsLightVariables()
@@ -147,14 +158,15 @@ public class ShaderManager
         int currentIndex = 0;
         foreach (int spotLightEntityId in _spotLightFilter)
         {
-            ref Location lightLocation = ref _locationComponents.Get(spotLightEntityId);
+            ref Location cameraLocation = ref _locationComponents.Get(_mainCameraEntityId);
+            ref Rotation cameraRotation = ref _rotationComponents.Get(_mainCameraEntityId);
             ref Direction lightDirection = ref _directionComponents.Get(spotLightEntityId);
             ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(spotLightEntityId);
             ref Attenuation lightAttenuation = ref _attenuationComponents.Get(spotLightEntityId);
             ref SpotLight spotLight = ref _spotLightComponents.Get(spotLightEntityId);
 
-            _splineShader.SetVec3($"spotLight[{currentIndex}].position", lightLocation.Position.X, lightLocation.Position.Y, lightLocation.Position.Z);
-            _splineShader.SetVec3($"spotLight[{currentIndex}].direction", lightDirection.To.X, lightDirection.To.Y, lightDirection.To.Z);
+            _splineShader.SetVec3($"spotLight[{currentIndex}].position", cameraLocation.Position.X, cameraLocation.Position.Y, cameraLocation.Position.Z);
+            _splineShader.SetVec3($"spotLight[{currentIndex}].direction", cameraRotation.ForwardVector.X, cameraRotation.ForwardVector.Y, cameraRotation.ForwardVector.Z);
             _splineShader.SetVec3($"spotLight[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
             _splineShader.SetVec3($"spotLight[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
             _splineShader.SetVec3($"spotLight[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);

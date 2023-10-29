@@ -1,9 +1,11 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using _3D_visualization.Model.Environment;
+using _3D_visualization.Model.SystemComponents.Render;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL;
+using SharpGL.SceneGraph;
 using SharpGL.WPF;
 
 namespace _3D_visualization.Model.SystemComponents.Spline.Systems;
@@ -86,7 +88,6 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
     {
         openGl.PushMatrix();
         
-        _shaderManager.UseSuperRealisticShader();
         openGl.BindVertexArray(spline.SplineVAO);
         openGl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, spline.SplineEBO);
         

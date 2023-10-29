@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using _3D_visualization.Model.Environment;
+using _3D_visualization.Model.SystemComponents.Light;
+using _3D_visualization.Model.SystemComponents.Transform.Components;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
 using SharpGL;
@@ -12,6 +14,12 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
 {
     [EcsInject] private OpenGLControl _openGlControl;
     [EcsInject] private ShaderManager _shaderManager;
+    
+    [EcsPool] private EcsPool<Location> _locationComponents;
+    [EcsPool] private EcsPool<LightProperties> _lightPropertiesComponents;
+
+    private EcsFilter _pointLightFilter;
+
     
     float[] _vertices = {
         -0.5f, -0.5f, -0.5f,
@@ -63,8 +71,16 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
 
     public void Init(IEcsSystems systems)
     {
+        EcsWorld world = systems.GetWorld();
+        _pointLightFilter = world.Filter<PointLight>().End();
+
+        InitializeSpotLightVao();
+    }
+
+    private void InitializeSpotLightVao()
+    {
         OpenGL gl = _openGlControl.OpenGL;
-        
+
         uint[] lightVBO = new uint[1];
         uint[] lightVAO = new uint[1];
         
@@ -87,21 +103,32 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
     public void Run(IEcsSystems systems)
     {
         OpenGL gl = _openGlControl.OpenGL;
-        gl.PushMatrix();
         
-        gl.Translate(_lightPos.X, _lightPos.Y, _lightPos.Z);
-        gl.Scale(0.2, 0.2, 0.2);
-        
-        _shaderManager.UseLampShader();
+        Shader lampShader = _shaderManager.UseLampShader();
 
         gl.BindVertexArray(_lightVAO);
         
         gl.EnableVertexAttribArray(0);
-        gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
+        
+        foreach (var pointLightEntityId in _pointLightFilter)
+        {
+            ref Location pointLightLocation = ref _locationComponents.Get(pointLightEntityId);
+            ref LightProperties pointLightProperties = ref _lightPropertiesComponents.Get(pointLightEntityId);
+            
+            gl.PushMatrix();
+            
+            gl.Translate(pointLightLocation.Position.X, pointLightLocation.Position.Y, pointLightLocation.Position.Z);
+            gl.Scale(0.2, 0.2, 0.2);
+            
+            lampShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
+            lampShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
+            lampShader.SetVec3("lightColor", pointLightProperties.Diffuse.X, pointLightProperties.Diffuse.Y, pointLightProperties.Diffuse.Z);
+            gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
+
+            gl.PopMatrix();
+        }
         
         gl.DisableVertexAttribArray(0);
         gl.BindVertexArray(0);
-        
-        gl.PopMatrix();
     }
 }
