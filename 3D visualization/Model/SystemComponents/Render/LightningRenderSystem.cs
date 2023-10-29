@@ -63,7 +63,7 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
 
     public void Init(IEcsSystems systems)
     {
-        OpenGL gl = _openGlControl.OpenGL;
+        /*OpenGL gl = _openGlControl.OpenGL;
         
         uint[] lightVBO = new uint[1];
         uint[] lightVAO = new uint[1];
@@ -81,12 +81,12 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, 0);
         gl.BindVertexArray(0);
         
-        _lightVAO = lightVAO[0];
+        _lightVAO = lightVAO[0];*/
     }
 
     public void Run(IEcsSystems systems)
     {
-        OpenGL gl = _openGlControl.OpenGL;
+        /*OpenGL gl = _openGlControl.OpenGL;
         gl.PushMatrix();
         
         gl.EnableVertexAttribArray(0);
@@ -102,6 +102,6 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         
         _shaderManager.UseDefaultShader();
         
-        gl.PopMatrix();
+        gl.PopMatrix();*/
     }
 }

@@ -12,10 +12,10 @@ public struct Spline
     public List<Vector2> TexCoords;
 
     public float[] VBOdata;
+    public int[] Indexes;
     public uint SplineVAO = 0;
+    public uint SplineEBO = 0;
 
-    public uint BottomSplineEbo = 0;
-    public uint TopSplineEbo = 0;
 
     public Spline(List<Vector2> section, List<Vector3> path)
     {
@@ -28,5 +28,7 @@ public struct Spline
 
         VBOdata = new float[11 * ((2 * section.Count()) +
                                   (4 * (path.Count() - 1) * section.Count()))];
+
+        Indexes = new int[2 * section.Count() + 6 * section.Count() * (path.Count() - 1)];
     }
 }

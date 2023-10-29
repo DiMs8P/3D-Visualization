@@ -289,6 +289,8 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             
             spline.VBOdata[currentLine * 11 + 9] = spline.TexCoords[i].X;
             spline.VBOdata[currentLine * 11 + 10] = spline.TexCoords[i].Y;
+            
+            spline.Indexes[^(spline.Section.Count - i)] = currentLine;
 
             ++currentLine;
         }
@@ -298,6 +300,13 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         for (int i = 0; i < spline.Section.Count - 1; i++)
         {
+            spline.Indexes[currentLine     + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine;
+            spline.Indexes[currentLine + 1 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 1;
+            spline.Indexes[currentLine + 2 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 2;
+            spline.Indexes[currentLine + 3 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 1;
+            spline.Indexes[currentLine + 4 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 2;
+            spline.Indexes[currentLine + 5 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 3;
+            
             spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation][i].X;
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][i].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][i].Z;
@@ -366,6 +375,13 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
 
             ++currentLine;
         }
+        
+        spline.Indexes[currentLine - 1 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine;
+        spline.Indexes[currentLine     + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 1;
+        spline.Indexes[currentLine + 1 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 2;
+        spline.Indexes[currentLine + 2 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 1;
+        spline.Indexes[currentLine + 3 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 2;
+        spline.Indexes[currentLine + 4 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 3;
         
         spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation][^1].X;
         spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][^1].Y;
@@ -454,6 +470,8 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             
             spline.VBOdata[currentLine * 11 + 9] = spline.TexCoords[i].X;
             spline.VBOdata[currentLine * 11 + 10] = spline.TexCoords[i].Y;
+
+            spline.Indexes[i] = currentLine;
 
             ++currentLine;
         }

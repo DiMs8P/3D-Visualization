@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using _3D_visualization.Model.Environment;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
@@ -50,33 +51,52 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
         
         uint[] splineVBO = new uint[1];
         uint[] splineVAO = new uint[1];
+        uint[] splineEBO = new uint[1];
         
         gl.GenVertexArrays(1, splineVBO);
         gl.GenBuffers(1, splineVAO);
+        gl.GenBuffers(1, splineEBO);
         
         gl.BindVertexArray(splineVAO[0]);
         
         gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, splineVBO[0]);
-        gl.BufferData(OpenGL.GL_ARRAY_BUFFER, spline.VBOdata, OpenGL.GL_STATIC_DRAW);
+        IntPtr ptr1 = GCHandle.Alloc(spline.VBOdata, GCHandleType.Pinned).AddrOfPinnedObject();
+        
+        gl.BufferData(OpenGL.GL_ARRAY_BUFFER, spline.VBOdata.Length * sizeof(float), ptr1, OpenGL.GL_STATIC_DRAW);
+        
+        gl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, splineEBO[0]);
+        IntPtr ptr2 = GCHandle.Alloc(spline.Indexes, GCHandleType.Pinned).AddrOfPinnedObject();
+        
+        gl.BufferData(OpenGL.GL_ELEMENT_ARRAY_BUFFER, spline.Indexes.Length * sizeof(int), ptr2, OpenGL.GL_STATIC_DRAW);
         
         gl.VertexAttribPointer(0, 3, OpenGL.GL_FLOAT, false, 11 * sizeof(float), IntPtr.Zero);
         gl.VertexAttribPointer(1, 3, OpenGL.GL_FLOAT, false, 11 * sizeof(float), new IntPtr(sizeof(float) * 3));
         gl.VertexAttribPointer(2, 3, OpenGL.GL_FLOAT, false, 11 * sizeof(float), new IntPtr(sizeof(float) * 6));
         gl.VertexAttribPointer(3, 2, OpenGL.GL_FLOAT, false, 11 * sizeof(float), new IntPtr(sizeof(float) * 9));
         
+        gl.EnableVertexAttribArray(0);
+        gl.EnableVertexAttribArray(1);
+        gl.EnableVertexAttribArray(2);
+        gl.EnableVertexAttribArray(3);
+        
         gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, 0);
         gl.BindVertexArray(0);
+        gl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, 0);
 
         spline.SplineVAO = splineVAO[0];
+        spline.SplineEBO = splineEBO[0];
     }
 
     private void DrawSpline(ref Components.Spline spline, OpenGL openGl)
     {
-        //DrawBottomSpline(ref spline, openGl);
+        openGl.PushMatrix();
         
-        DrawCenterSpline(ref spline, openGl);
+        _shaderManager.UseSplineShader();
+        openGl.BindVertexArray(spline.SplineVAO);
         
-        //DrawTopSpline(ref spline, openGl);
+        openGl.DrawElements(OpenGL.GL_TRIANGLES, spline.Indexes.Length, OpenGL.GL_UNSIGNED_INT, IntPtr.Zero);
+        
+        openGl.PopMatrix();
     }
 
     private void DrawNormals(ref Components.Spline spline, OpenGL openGl)
@@ -151,63 +171,7 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
         
         openGl.PopMatrix();
     }
-
-    private void DrawTopSpline(ref Components.Spline spline, OpenGL openGl)
-    {
-        openGl.PushMatrix();
-
-        openGl.Begin(OpenGL.GL_POLYGON);
-        
-        for (int i = 0; i < spline.PointsLocation[^1].Count; i++)
-        {
-            openGl.Color(0.0f, 0.0f, 1.0f);
-            openGl.Vertex(spline.PointsLocation[^1][i].X, spline.PointsLocation[^1][i].Y, spline.PointsLocation[^1][i].Z);
-        }
-        
-        openGl.End();
-        
-        openGl.PopMatrix();
-    }
-
-    private void DrawCenterSpline(ref Components.Spline spline, OpenGL openGl)
-    {
-        OpenGL gl = _openGlControl.OpenGL;
-        gl.PushMatrix();
-        
-        gl.EnableVertexAttribArray(0);
-        gl.EnableVertexAttribArray(1);
-        gl.EnableVertexAttribArray(2);
-        gl.EnableVertexAttribArray(3);
-        
-        _shaderManager.UseSplineShader();
-        gl.BindVertexArray(spline.SplineVAO);
-        gl.DrawArrays(OpenGL.GL_QUADS, 3, 27);
-        
-        gl.DisableVertexAttribArray(0);
-        gl.DisableVertexAttribArray(1);
-        gl.DisableVertexAttribArray(2);
-        gl.DisableVertexAttribArray(3);
-        
-        gl.PopMatrix();
-    }
-
-    private void DrawBottomSpline(ref Components.Spline spline, OpenGL openGl)
-    {
-        openGl.PushMatrix();
-
-        openGl.Begin(OpenGL.GL_POLYGON);
-        
-        for (int i = 0; i < spline.PointsLocation[0].Count; i++)
-        {
-            openGl.Color(0.0f, 0.0f, 1.0f);
-            openGl.Vertex(spline.PointsLocation[0][i].X, spline.PointsLocation[0][i].Y, spline.PointsLocation[0][i].Z);
-        }
-        
-        openGl.End();
-        
-        openGl.PopMatrix();
-    }
-
+    
     private void DebugPath(ref Components.Spline spline, OpenGL openGl)
     {
         openGl.PushMatrix();

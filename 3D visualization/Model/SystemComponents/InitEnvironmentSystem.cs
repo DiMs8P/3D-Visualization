@@ -63,7 +63,7 @@ public class InitEnvironmentSystem : IEcsInitSystem
     private void CreateLampLight(ObjectsFactory objectsFactory)
     {
         objectsFactory.Create()
-            .Add<SpotLight>(new SpotLight(new Vector3(1.0f, 1.0f, 1.0f)))
+            .Add<PointLight>(new PointLight(new Vector3(1.0f, 1.0f, 1.0f)))
             .Add<Location>(new Location(new Vector3(1.2f, 1.0f, 1.0f)))
             .End();
     }

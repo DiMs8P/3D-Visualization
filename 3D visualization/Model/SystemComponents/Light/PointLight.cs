@@ -2,11 +2,11 @@
 
 namespace _3D_visualization.Model.SystemComponents.Light;
 
-public struct SpotLight
+public struct PointLight
 {
     public Vector3 LightColor;
 
-    public SpotLight(Vector3 color)
+    public PointLight(Vector3 color)
     {
         LightColor = color;
     }

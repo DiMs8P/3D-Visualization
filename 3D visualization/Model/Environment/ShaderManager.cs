@@ -15,7 +15,7 @@ public class ShaderManager
     private EcsWorld _world;
     
     [EcsPool] EcsPool<Location> _locationComponents;
-    [EcsPool] EcsPool<SpotLight> _spotLightComponents;
+    [EcsPool] EcsPool<PointLight> _spotLightComponents;
     
     EcsFilter _mainCameraFilter;
     EcsFilter _spotLightFilter;
@@ -34,10 +34,10 @@ public class ShaderManager
         _openGlControl = openGlControl;
         
         _mainCameraFilter = world.Filter<CameraMarker>().End();
-        _spotLightFilter = world.Filter<SpotLight>().End();
+        _spotLightFilter = world.Filter<PointLight>().End();
         
         _locationComponents = world.GetPool<Location>();
-        _spotLightComponents = world.GetPool<SpotLight>();
+        _spotLightComponents = world.GetPool<PointLight>();
 
         _mainCameraEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_mainCameraFilter);
         _spotLightEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_spotLightFilter);
@@ -81,11 +81,11 @@ public class ShaderManager
         ref Location cameraPosition = ref _locationComponents.Get(_mainCameraEntityId);
         ref Location spotLightPosition = ref _locationComponents.Get(_spotLightEntityId);
 
-        ref SpotLight spotLight = ref _spotLightComponents.Get(_spotLightEntityId);
+        ref PointLight pointLight = ref _spotLightComponents.Get(_spotLightEntityId);
         
         _splineShader.Use();
         _splineShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        _splineShader.SetVec3("lightColor", spotLight.LightColor.X, spotLight.LightColor.Y, spotLight.LightColor.Z);
+        _splineShader.SetVec3("lightColor", pointLight.LightColor.X, pointLight.LightColor.Y, pointLight.LightColor.Z);
         _splineShader.SetVec3("lightPos", spotLightPosition.Position.X, spotLightPosition.Position.Y, spotLightPosition.Position.Z);
         _splineShader.SetVec3("viewPos", cameraPosition.Position.X, cameraPosition.Position.Y, cameraPosition.Position.Z);
         
