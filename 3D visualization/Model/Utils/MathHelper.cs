@@ -24,6 +24,11 @@ public static class MathHelper
 
         return thetaDeg * sign;
     }
+
+    public static float GetRadiansFrom(float angle)
+    {
+        return ((float)Math.PI / 180) * angle;
+    }
     
     public static Vector3 RotateY(Vector3 vector, float angle)
     {

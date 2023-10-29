@@ -36,7 +36,7 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
                 InitializeSplineVao(ref spline);
             }
             
-            _shaderManager.UseSplineShader();
+            _shaderManager.UseSuperRealisticShader();
             DrawSpline(ref spline, _openGlControl.OpenGL);
             
             _shaderManager.UseDefaultShader();
@@ -86,7 +86,7 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
     {
         openGl.PushMatrix();
         
-        _shaderManager.UseSplineShader();
+        _shaderManager.UseSuperRealisticShader();
         openGl.BindVertexArray(spline.SplineVAO);
         openGl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, spline.SplineEBO);
         
