@@ -57,7 +57,6 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         -1f,  1f, -1f,  0.0f,  1.0f,  0.0f
     };
 
-    private Shader _lightingShader;
     private uint _lightVAO;
 
     private Vector3 _lightPos = new(1.2f, 1.0f, 1.0f);
@@ -65,12 +64,6 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
     public void Init(IEcsSystems systems)
     {
         OpenGL gl = _openGlControl.OpenGL;
-
-        _lightingShader = new Shader(
-            gl,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_fragment.txt"
-        );
         
         uint[] lightVBO = new uint[1];
         uint[] lightVAO = new uint[1];
@@ -107,15 +100,8 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
         
         gl.DisableVertexAttribArray(0);
         
+        _shaderManager.UseDefaultShader();
+        
         gl.PopMatrix();
-        
-        _lightingShader.Use();
-        _lightingShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        _lightingShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        _lightingShader.SetVec3("lightPos", _lightPos.X, _lightPos.Y, _lightPos.Z);
-        _lightingShader.SetVec3("viewPos", 0.0f, 0.0f, 0.3f);
-        
-        _lightingShader.SetMat4("projection", gl.GetProjectionMatrix().AsRowMajorArrayFloat);
-        _lightingShader.SetMat4("modelview", gl.GetModelViewMatrix().AsRowMajorArrayFloat);
     }
 }

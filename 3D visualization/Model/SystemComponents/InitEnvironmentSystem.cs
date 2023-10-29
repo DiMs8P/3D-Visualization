@@ -1,6 +1,8 @@
-﻿using _3D_visualization.Model.Factory;
+﻿using System.Numerics;
+using _3D_visualization.Model.Factory;
 using _3D_visualization.Model.Input.Components;
 using _3D_visualization.Model.SystemComponents.Input.Components;
+using _3D_visualization.Model.SystemComponents.Light;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Markers;
 using _3D_visualization.Model.SystemComponents.Player;
@@ -60,9 +62,9 @@ public class InitEnvironmentSystem : IEcsInitSystem
 
     private void CreateLampLight(ObjectsFactory objectsFactory)
     {
-        /*objectsFactory.Create()
-            .Add<SpotLight>
-            .Add<Location>(new Location())
-            .End();*/
+        objectsFactory.Create()
+            .Add<SpotLight>(new SpotLight(new Vector3(1.0f, 1.0f, 1.0f)))
+            .Add<Location>(new Location(new Vector3(1.2f, 1.0f, 1.0f)))
+            .End();
     }
 }

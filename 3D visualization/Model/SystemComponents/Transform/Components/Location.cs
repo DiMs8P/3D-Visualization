@@ -10,4 +10,9 @@ public struct Location
     {
         Position = new Vector3(0f, 0f, 3f);
     }
+    
+    public Location(Vector3 position)
+    {
+        Position = position;
+    }
 }
