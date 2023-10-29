@@ -74,11 +74,6 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
         gl.VertexAttribPointer(2, 3, OpenGL.GL_FLOAT, false, 11 * sizeof(float), new IntPtr(sizeof(float) * 6));
         gl.VertexAttribPointer(3, 2, OpenGL.GL_FLOAT, false, 11 * sizeof(float), new IntPtr(sizeof(float) * 9));
         
-        gl.EnableVertexAttribArray(0);
-        gl.EnableVertexAttribArray(1);
-        gl.EnableVertexAttribArray(2);
-        gl.EnableVertexAttribArray(3);
-        
         gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, 0);
         gl.BindVertexArray(0);
         gl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -93,8 +88,22 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
         
         _shaderManager.UseSplineShader();
         openGl.BindVertexArray(spline.SplineVAO);
+        openGl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, spline.SplineEBO);
+        
+        openGl.EnableVertexAttribArray(0);
+        openGl.EnableVertexAttribArray(1);
+        openGl.EnableVertexAttribArray(2);
+        openGl.EnableVertexAttribArray(3);
         
         openGl.DrawElements(OpenGL.GL_TRIANGLES, spline.Indexes.Length, OpenGL.GL_UNSIGNED_INT, IntPtr.Zero);
+        
+        openGl.DisableVertexAttribArray(0);
+        openGl.DisableVertexAttribArray(1);
+        openGl.DisableVertexAttribArray(2);
+        openGl.DisableVertexAttribArray(3);
+        
+        openGl.BindVertexArray(0);
+        openGl.BindBuffer(OpenGL.GL_ELEMENT_ARRAY_BUFFER, 0);
         
         openGl.PopMatrix();
     }
