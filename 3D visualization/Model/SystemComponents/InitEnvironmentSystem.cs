@@ -61,8 +61,8 @@ public class InitEnvironmentSystem : IEcsInitSystem
             .Add<Location>(new Location())
             .Add<Rotation>(new Rotation())
             .Add<Owning>(new Owning(playerId))
-            .Add<RotationRequest>(new RotationRequest())
             .Add<LocationRequest>(new LocationRequest())
+            .Add<RotationRequest>(new RotationRequest())
             .End();
     }
     
@@ -71,6 +71,7 @@ public class InitEnvironmentSystem : IEcsInitSystem
         objectsFactory.Create()
             .Add<SpotLight>(new SpotLight((float)Math.Cos(MathHelper.GetRadiansFrom(12.5f)), (float)Math.Cos(MathHelper.GetRadiansFrom(15.0f))))
             .Add<Location>(new Location())
+            .Add<Rotation>(new Rotation())
             .Add<Direction>(new Direction())
             .Add<LightProperties>(new LightProperties(
                 new Vector3(0.0f, 0.0f, 0.0f),
@@ -78,8 +79,8 @@ public class InitEnvironmentSystem : IEcsInitSystem
                 new Vector3(1.0f, 1.0f, 1.0f)))
             .Add<Attenuation>(new Attenuation(1.0f, 0.09f, 0.032f))
             .Add<Owning>(new Owning(playerId))
-            .Add<RotationRequest>(new RotationRequest())
             .Add<LocationRequest>(new LocationRequest())
+            .Add<RotationRequest>(new RotationRequest())
             .End();
     }
 

@@ -5,6 +5,7 @@ using _3D_visualization.Model.SystemComponents;
 using _3D_visualization.Model.SystemComponents.Input.Systems;
 using _3D_visualization.Model.SystemComponents.MainCamera.System;
 using _3D_visualization.Model.SystemComponents.Markers;
+using _3D_visualization.Model.SystemComponents.Ownership;
 using _3D_visualization.Model.SystemComponents.Player.Systems;
 using _3D_visualization.Model.SystemComponents.Render;
 using _3D_visualization.Model.SystemComponents.Spline.Systems;
@@ -66,6 +67,7 @@ public class Game
         _gameplaySystems
             .Add(new PlayerObservationSystem())
             .Add(new PlayerMovementSystem())
+            .Add(new OwnershipSystem())
             .Add(new CameraSystem())
             .Add(new SplineTransformSystem())
             .Inject(new AutoMapper2D())
