@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using _3D_visualization.Model.Environment;
+using _3D_visualization.Model.Events;
 using _3D_visualization.Model.SystemComponents.Render;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
@@ -13,13 +14,34 @@ namespace _3D_visualization.Model.SystemComponents.Spline.Systems;
 public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
 {
     [EcsInject] OpenGLControl _openGlControl;
-    [EcsInject] private ShaderManager _shaderManager;
+    [EcsInject] ShaderManager _shaderManager;
+    [EcsInject] GameplayEventsListener _eventsListener;
     
     EcsPool<Components.Spline> _splineComponents;
     
     EcsFilter _splineFilter;
+
+    private bool _drawNormals = false;
+    private bool _showTextures = false;
     public void Init(IEcsSystems systems)
     {
+        _eventsListener.OnDrawNormalsEvent += drawNormals => _drawNormals = drawNormals;
+        _eventsListener.OnTextureEnableEvent += showTextures => _showTextures = showTextures;
+
+        _eventsListener.OnShowWireFrameEvent += useWireframeMode =>
+        {
+            if (useWireframeMode)
+            {
+                OpenGL gl = _openGlControl.OpenGL;
+                gl.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_LINE);
+            }
+            else
+            {
+                OpenGL gl = _openGlControl.OpenGL;
+                gl.PolygonMode(OpenGL.GL_FRONT_AND_BACK, OpenGL.GL_FILL);
+            }
+        };
+
     }
 
     public void Run(IEcsSystems systems)
@@ -38,12 +60,17 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
                 InitializeSplineVao(ref spline);
             }
             
-            _shaderManager.UseSuperRealisticShader();
+            _shaderManager.UseSuperRealisticShader(_showTextures);
             DrawSpline(ref spline, _openGlControl.OpenGL);
             
             _shaderManager.UseDefaultShader();
+
+            if (_drawNormals)
+            {
+                DrawNormals(ref spline, _openGlControl.OpenGL);
+            }
+            
             DebugPath(ref spline, _openGlControl.OpenGL);
-            DrawNormals(ref spline, _openGlControl.OpenGL);
         }
     }
 

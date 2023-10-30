@@ -36,6 +36,7 @@ public partial class MainWindow : Window
     {
         // TODO remove
         OpenGLControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
+        OpenGLControl.OpenGL.Enable(OpenGL.GL_TEXTURE_2D);
         
         _applicationViewModel.Initialize(OpenGLControl, 60);
         _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\splineData.txt");
@@ -84,32 +85,32 @@ public partial class MainWindow : Window
 
     private void WireframeCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _applicationViewModel.UseWireframeMode(false);
     }
 
     private void WireframeCheckbox_Checked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _applicationViewModel.UseWireframeMode(true);
     }
 
     private void NormalCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _applicationViewModel.DrawNormals(false);
     }
 
     private void NormalCheckbox_Checked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _applicationViewModel.DrawNormals(true);
     }
 
     private void TextureCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _applicationViewModel.ShowTextures(false);
     }
 
     private void TextureCheckbox_Checked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        _applicationViewModel.ShowTextures(true);
     }
 
     private void NormalSmoothingCheckbox_Unchecked(object sender, RoutedEventArgs e)

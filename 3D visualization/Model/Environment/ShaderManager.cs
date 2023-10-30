@@ -1,10 +1,14 @@
-﻿using _3D_visualization.Model.SystemComponents.Light;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using _3D_visualization.Model.SystemComponents.Light;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Render;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
 using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
+using SharpGL;
 using SharpGL.SceneGraph;
 using SharpGL.WPF;
 
@@ -37,6 +41,9 @@ public class ShaderManager
     private Shader _splineShader;
     private Shader _splineDebugShader;
 
+    private uint diffuseMap;
+    private uint specularMap;
+
     private int _mainCameraEntityId;
     
     public ShaderManager(EcsWorld world, OpenGLControl openGlControl)
@@ -65,6 +72,9 @@ public class ShaderManager
         CreateLampShader();
         CreateSplineShader();
         CreateSplineDebugShader();
+
+        diffuseMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\diffuse.png");
+        specularMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\specular.png");
     }
 
     private void CreateLampShader()
@@ -106,9 +116,24 @@ public class ShaderManager
         return _lampShader;
     }
 
-    public Shader UseSuperRealisticShader()
+    public Shader UseSuperRealisticShader(bool showTextures)
     {
+        OpenGL gl = _openGlControl.OpenGL;
         _splineShader.Use();
+
+        _splineShader.SetBool("material.active", showTextures);
+        if (showTextures)
+        {
+            
+            _splineShader.SetInt("material.diffuse", 0);
+            _splineShader.SetInt("material.specular", 1);
+        
+            gl.ActiveTexture(OpenGL.GL_TEXTURE0);
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, diffuseMap);
+
+            gl.ActiveTexture(OpenGL.GL_TEXTURE1);
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, specularMap);
+        }
         
         _splineShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
         _splineShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
@@ -119,7 +144,7 @@ public class ShaderManager
 
         SetUniformDirectionalsLightVariables();
         SetUniformPointLightsVariables();
-        SetUniformSpotLightsVariables();
+        SetUniformFlashlightVariables();
 
         return _splineShader;
     }
@@ -179,20 +204,19 @@ public class ShaderManager
         }
     }
 
-    private void SetUniformSpotLightsVariables()
+    private void SetUniformFlashlightVariables()
     {
         int currentIndex = 0;
         foreach (int spotLightEntityId in _spotLightFilter)
         {
-            ref Location cameraLocation = ref _locationComponents.Get(_mainCameraEntityId);
-            ref Rotation cameraRotation = ref _rotationComponents.Get(_mainCameraEntityId);
-            ref Direction lightDirection = ref _directionComponents.Get(spotLightEntityId);
+            ref Location spotLightLocation = ref _locationComponents.Get(spotLightEntityId);
+            ref Rotation spotLightRotation = ref _rotationComponents.Get(spotLightEntityId);
             ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(spotLightEntityId);
             ref Attenuation lightAttenuation = ref _attenuationComponents.Get(spotLightEntityId);
             ref SpotLight spotLight = ref _spotLightComponents.Get(spotLightEntityId);
 
-            _splineShader.SetVec3($"spotLight[{currentIndex}].position", cameraLocation.Position.X, cameraLocation.Position.Y, cameraLocation.Position.Z);
-            _splineShader.SetVec3($"spotLight[{currentIndex}].direction", cameraRotation.ForwardVector.X, cameraRotation.ForwardVector.Y, cameraRotation.ForwardVector.Z);
+            _splineShader.SetVec3($"spotLight[{currentIndex}].position", spotLightLocation.Position.X, spotLightLocation.Position.Y, spotLightLocation.Position.Z);
+            _splineShader.SetVec3($"spotLight[{currentIndex}].direction", spotLightRotation.ForwardVector.X, spotLightRotation.ForwardVector.Y, spotLightRotation.ForwardVector.Z);
             _splineShader.SetVec3($"spotLight[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
             _splineShader.SetVec3($"spotLight[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
             _splineShader.SetVec3($"spotLight[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
@@ -204,5 +228,37 @@ public class ShaderManager
 
             ++currentIndex;
         }
+    }
+    
+    private uint LoadTexture(string path)
+    {
+        OpenGL gl = _openGlControl.OpenGL;
+        
+        uint[] textureID = new uint[1];
+        gl.GenTextures(1, textureID);
+        
+        Bitmap bitmap = new Bitmap(path);
+
+        IntPtr pixels = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb).Scan0;
+        
+        if (pixels != IntPtr.Zero)
+        {
+            gl.BindTexture(OpenGL.GL_TEXTURE_2D, textureID[0]);
+            gl.TexImage2D(OpenGL.GL_TEXTURE_2D, 0, 3, bitmap.Width, bitmap.Height, 0, OpenGL.GL_BGR,
+                OpenGL.GL_UNSIGNED_BYTE, pixels);
+            gl.GenerateMipmapEXT(OpenGL.GL_TEXTURE_2D);
+
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_S, OpenGL.GL_REPEAT);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_WRAP_T, OpenGL.GL_REPEAT);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR_MIPMAP_LINEAR);
+            gl.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
+        }
+        else
+        {
+            throw new System.Exception("");
+        }
+        
+        return textureID[0];
     }
 }

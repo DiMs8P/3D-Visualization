@@ -56,4 +56,19 @@ public class ApplicationViewModel
         _game.Factory.Create()
             .Add<Spline>(new Spline(replicationData.Item1, replicationData.Item2));
     }
+
+    public void DrawNormals(bool drawNormals)
+    {
+        _game.GameplayEventsListener.InvokeOnDrawNormals(drawNormals);
+    }
+
+    public void UseWireframeMode(bool useWireFrame)
+    {
+        _game.GameplayEventsListener.InvokeOnShowWireFrame(useWireFrame);
+    }
+
+    public void ShowTextures(bool showTextures)
+    {
+        _game.GameplayEventsListener.InvokeOnTextureEnable(showTextures);
+    }
 }

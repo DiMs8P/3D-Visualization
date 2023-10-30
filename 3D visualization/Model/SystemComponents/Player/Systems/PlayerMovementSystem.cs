@@ -76,7 +76,7 @@ public class PlayerMovementSystem : IEcsInitSystem, IEcsRunSystem
             playerLocation.Position += playerMovement.Speed * Vector3.Normalize(Vector3.Cross(playerRotation.ForwardVector, playerRotation.UpVector)) * deltaTime.DeltaTime;
         }
         
-        if (pressedKeys.PressedKeys.Contains(Key.Space))
+        if (pressedKeys.PressedKeys.Contains(Key.LeftShift))
         {
             playerLocation.Position += playerMovement.Speed * Vector3.UnitY * deltaTime.DeltaTime;
         }
