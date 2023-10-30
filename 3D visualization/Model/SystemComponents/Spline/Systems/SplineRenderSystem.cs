@@ -38,7 +38,7 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
                 InitializeSplineVao(ref spline);
             }
             
-            _shaderManager.UseSuperRealisticShader();
+            _shaderManager.UseSplineDebugShader();
             DrawSpline(ref spline, _openGlControl.OpenGL);
             
             _shaderManager.UseDefaultShader();

@@ -35,6 +35,7 @@ public class ShaderManager
 
     private Shader _lampShader;
     private Shader _splineShader;
+    private Shader _splineDebugShader;
 
     private int _mainCameraEntityId;
     
@@ -63,8 +64,9 @@ public class ShaderManager
 
         CreateLampShader();
         CreateSplineShader();
+        CreateSplineDebugShader();
     }
-    
+
     private void CreateLampShader()
     {
         _lampShader = new Shader(
@@ -80,6 +82,15 @@ public class ShaderManager
             _openGlControl.OpenGL,
             "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_vertex.txt",
             "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_fragment.txt"
+        );
+    }
+    
+    private void CreateSplineDebugShader()
+    {
+        _splineDebugShader = new Shader(
+            _openGlControl.OpenGL,
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\debug_vertex.txt",
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\debug_fragment.txt"
         );
     }
 
@@ -111,6 +122,19 @@ public class ShaderManager
         SetUniformSpotLightsVariables();
 
         return _lampShader;
+    }
+    
+    public void UseSplineDebugShader()
+    {
+        _splineDebugShader.Use();
+        
+        _splineDebugShader.SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        _splineDebugShader.SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        _splineDebugShader.SetVec3("lightPos", 1.2f, 1.0f, 1.0f);
+        _splineDebugShader.SetVec3("viewPos", 0.0f, 0.0f, 0.3f);
+
+        _splineDebugShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
+        _splineDebugShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
     }
 
     private void SetUniformDirectionalsLightVariables()
