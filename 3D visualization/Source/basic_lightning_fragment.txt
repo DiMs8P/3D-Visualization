@@ -43,7 +43,7 @@ struct SpotLight {
 };
 
 #define NR_DIRECTION_LIGHTS 1
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 2
 #define NR_SPOT_LIGHTS 1
 
 in vec3 Normal;  

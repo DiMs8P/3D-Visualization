@@ -121,10 +121,10 @@ public class ShaderManager
         SetUniformPointLightsVariables();
         SetUniformSpotLightsVariables();
 
-        return _lampShader;
+        return _splineShader;
     }
     
-    public void UseSplineDebugShader()
+    public Shader UseSplineDebugShader()
     {
         _splineDebugShader.Use();
         
@@ -135,6 +135,8 @@ public class ShaderManager
 
         _splineDebugShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
         _splineDebugShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
+
+        return _splineDebugShader;
     }
 
     private void SetUniformDirectionalsLightVariables()

@@ -10,7 +10,7 @@ public struct Rotation
 
     public Rotation()
     {
-        ForwardVector = -Vector3.Zero;
+        ForwardVector = -Vector3.UnitZ;
         UpVector = Vector3.UnitY;
         RightVector = Vector3.UnitX;
     }
