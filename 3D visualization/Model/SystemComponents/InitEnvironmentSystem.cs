@@ -5,6 +5,7 @@ using _3D_visualization.Model.SystemComponents.Input.Components;
 using _3D_visualization.Model.SystemComponents.Light;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Markers;
+using _3D_visualization.Model.SystemComponents.Ownership;
 using _3D_visualization.Model.SystemComponents.Player;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
 using _3D_visualization.Model.Utils;
@@ -42,33 +43,54 @@ public class InitEnvironmentSystem : IEcsInitSystem
     
     private void CreatePlayer(ObjectsFactory objectsFactory)
     {
-        objectsFactory.Create()
+        int playerId = objectsFactory.Create()
             .Add<PlayerMarker>(new PlayerMarker())
             .Add<Location>(new Location())
             .Add<Rotation>(new Rotation())
             .Add<Movement>(new Movement())
             .End();
 
-        CreatePlayerCamera(objectsFactory);
+        CreatePlayerCamera(objectsFactory, playerId);
+        CreatePlayerFlashLight(objectsFactory, playerId);
     }
-    
-    private void CreatePlayerCamera(ObjectsFactory objectsFactory)
+
+    private void CreatePlayerCamera(ObjectsFactory objectsFactory, int playerId)
     {
         objectsFactory.Create()
             .Add<CameraMarker>(new CameraMarker())
             .Add<Location>(new Location())
             .Add<Rotation>(new Rotation())
+            .Add<Owning>(new Owning(playerId))
+            .Add<RotationRequest>(new RotationRequest())
+            .Add<LocationRequest>(new LocationRequest())
+            .End();
+    }
+    
+    private void CreatePlayerFlashLight(ObjectsFactory objectsFactory, int playerId)
+    {
+        objectsFactory.Create()
+            .Add<SpotLight>(new SpotLight((float)Math.Cos(MathHelper.GetRadiansFrom(12.5f)), (float)Math.Cos(MathHelper.GetRadiansFrom(15.0f))))
+            .Add<Location>(new Location())
+            .Add<Direction>(new Direction())
+            .Add<LightProperties>(new LightProperties(
+                new Vector3(0.0f, 0.0f, 0.0f),
+                new Vector3(1.0f, 1.0f, 1.0f),
+                new Vector3(1.0f, 1.0f, 1.0f)))
+            .Add<Attenuation>(new Attenuation(1.0f, 0.09f, 0.032f))
+            .Add<Owning>(new Owning(playerId))
+            .Add<RotationRequest>(new RotationRequest())
+            .Add<LocationRequest>(new LocationRequest())
             .End();
     }
 
     private void CreateLampLights(ObjectsFactory objectsFactory)
     {
-        CreateDirectionLight(objectsFactory);
+        CreateDirectionLights(objectsFactory);
         CreatePointLights(objectsFactory);
-        CreateSpotLight(objectsFactory);
+        CreateSpotLights(objectsFactory);
     }
 
-    private void CreateDirectionLight(ObjectsFactory objectsFactory)
+    private void CreateDirectionLights(ObjectsFactory objectsFactory)
     {
         objectsFactory.Create()
             .Add<DirectionalLight>(new DirectionalLight())
@@ -102,17 +124,8 @@ public class InitEnvironmentSystem : IEcsInitSystem
         }
     }
 
-    private void CreateSpotLight(ObjectsFactory objectsFactory)
+    private void CreateSpotLights(ObjectsFactory objectsFactory)
     {
-        objectsFactory.Create()
-            .Add<SpotLight>(new SpotLight((float)Math.Cos(MathHelper.GetRadiansFrom(12.5f)), (float)Math.Cos(MathHelper.GetRadiansFrom(15.0f))))
-            .Add<Location>(new Location())
-            .Add<Direction>(new Direction())
-            .Add<LightProperties>(new LightProperties(
-                new Vector3(0.0f, 0.0f, 0.0f),
-                new Vector3(1.0f, 1.0f, 1.0f),
-                new Vector3(1.0f, 1.0f, 1.0f)))
-            .Add<Attenuation>(new Attenuation(1.0f, 0.09f, 0.032f))
-            .End();
+
     }
 }
