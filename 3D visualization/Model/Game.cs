@@ -69,7 +69,7 @@ public class Game
             .Add(new PlayerMovementSystem())
             .Add(new OwnershipSystem())
             .Add(new SplineTransformSystem())
-            .Inject(new AutoMapper2D())
+            .Inject(new AutoMapper2D(), GameplayEventsListener)
             .Init();
 
         _renderSystems = new EcsSystems(_world);

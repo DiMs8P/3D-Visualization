@@ -8,6 +8,7 @@ public struct Spline
     public List<Vector3> Path;
     public List<List<Vector3>> PointsLocation;
     public List<List<Vector3>> Normals;
+    public List<List<Vector3>> SmoothNormals;
     public List<List<Vector3>> PointsColor;
     public List<Vector2> TexCoords;
 
@@ -23,6 +24,7 @@ public struct Spline
         Path = path;
         PointsLocation = new List<List<Vector3>>();
         Normals = new List<List<Vector3>>();
+        SmoothNormals = new List<List<Vector3>>();
         PointsColor = new List<List<Vector3>>();
         TexCoords = new List<Vector2>();
 

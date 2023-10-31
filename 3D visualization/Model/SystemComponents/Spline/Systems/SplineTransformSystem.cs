@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using _3D_visualization.Model.Environment;
+using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Utils;
 using Leopotam.EcsLite;
 using SevenBoldPencil.EasyDi;
@@ -10,13 +11,28 @@ namespace _3D_visualization.Model.SystemComponents.Spline.Systems;
 public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
 {
     [EcsInject] AutoMapper2D _autoMapper2D;
+    [EcsInject] GameplayEventsListener _gameplayEventsListener;
     
     EcsPool<Components.Spline> _splineComponents;
     
     EcsFilter _splineFilter;
+
+    bool _shoothNormals = false;
     public void Init(IEcsSystems systems)
     {
-
+        _gameplayEventsListener.OnSmoothNormalsEnableEvent += smoothNormals =>
+        {
+            _shoothNormals = smoothNormals;
+            
+            foreach (var splineEntityId in _splineFilter)
+            {
+                ref Components.Spline spline = ref _splineComponents.Get(splineEntityId);
+                if (spline.PointsLocation.Count == 0)
+                {
+                    RecalculateNormals(ref spline);
+                }
+            }
+        };
     }
 
     public void Run(IEcsSystems systems)
@@ -35,10 +51,12 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
                 
                 UpdateSplinePointsLocation(ref spline);
                 UpdateSplinePointsNormals(ref spline);
+                UpdateSplinePointsSmoothNormals(ref spline);
                 UpdateSplinePointsColors(ref spline);
                 UpdateSplinePointsTexCoords(ref spline);
 
                 FillVboData(ref spline);
+                RecalculateNormals(ref spline);
             }
         }
     }
@@ -49,6 +67,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         {
             spline.PointsLocation.Add(new List<Vector3>());
             spline.Normals.Add(new List<Vector3>());
+            spline.SmoothNormals.Add(new List<Vector3>());
             spline.PointsColor.Add(new List<Vector3>());
 
             foreach (var point in spline.Section)
@@ -181,6 +200,49 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         
         InitializeTopNormals(ref spline);
     }
+    
+    private void UpdateSplinePointsSmoothNormals(ref Components.Spline spline)
+    {
+        InitializeBottomSmoothNormals(ref spline);
+        
+        for (int i = 1; i < spline.Path.Count - 1; i++)
+        {
+            InitializeCenterSmoothNormals(ref spline, i);
+        }
+        
+        InitializeTopSmoothNormals(ref spline);
+    }
+
+    private void InitializeTopSmoothNormals(ref Components.Spline spline)
+    {
+        spline.SmoothNormals[^1].Add(Vector3.Normalize(spline.Normals[^1][0] + spline.Normals[^2][^1] + spline.Normals[^2][0]));
+
+        for (int i = 1; i < spline.Section.Count(); i++)
+        {
+            spline.SmoothNormals[^1].Add(Vector3.Normalize(spline.Normals[^1][0] + spline.Normals[^2][i - 1] + spline.Normals[^2][i]));
+        }
+    }
+    
+    private void InitializeCenterSmoothNormals(ref Components.Spline spline, int currentLocation)
+    {
+        spline.SmoothNormals[currentLocation].Add(Vector3.Normalize(spline.Normals[currentLocation][0] + spline.Normals[currentLocation][^1] + spline.Normals[currentLocation + 1][0] + spline.Normals[currentLocation + 1][^1]));
+        
+        for (int i = 1; i < spline.Section.Count(); i++)
+        {
+            spline.SmoothNormals[currentLocation].Add(Vector3.Normalize(spline.Normals[currentLocation][i - 1] + spline.Normals[currentLocation][i] + spline.Normals[currentLocation + 1][i - 1] + spline.Normals[currentLocation + 1][i]));
+        }
+    }
+
+    private void InitializeBottomSmoothNormals(ref Components.Spline spline)
+    {
+        spline.SmoothNormals[0].Add(Vector3.Normalize(spline.Normals[0][0] + spline.Normals[1][^1] + spline.Normals[1][0]));
+
+        for (int i = 1; i < spline.Section.Count(); i++)
+        {
+            spline.SmoothNormals[0].Add(Vector3.Normalize(spline.Normals[0][0] + spline.Normals[1][i - 1] + spline.Normals[1][i]));
+        }
+    }
+
     private void InitializeBottomNormals(ref Components.Spline spline)
     {
         spline.Normals[0].Add(spline.Path[0] - spline.Path[1]);
@@ -300,10 +362,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[^1][i].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[^1][i].Z;
             
-            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[^1][0].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[^1][0].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[^1][0].Z;
-            
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[^1][0].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[^1][0].Y;
             spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[^1][0].Z;
@@ -332,10 +390,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][i].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][i].Z;
             
-            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][i].Z;
-            
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][i].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][i].Y;
             spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][i].Z;
@@ -348,10 +402,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][i].X;
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][i].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][i].Z;
-            
-            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][i].Z;
             
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][i].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][i].Y;
@@ -366,10 +416,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][i + 1].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][i + 1].Z;
             
-            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][i].Z;
-            
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][i + 1].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][i + 1].Y;
             spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][i + 1].Z;
@@ -382,10 +428,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][i + 1].X;
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][i + 1].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][i + 1].Z;
-            
-            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][i].Z;
             
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][i + 1].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][i + 1].Y;
@@ -408,10 +450,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][^1].Y;
         spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][^1].Z;
         
-        spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][^1].Z;
-        
         spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][^1].X;
         spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][^1].Y;
         spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][^1].Z;
@@ -424,10 +462,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][^1].X;
         spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][^1].Y;
         spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][^1].Z;
-        
-        spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][^1].Z;
         
         spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][^1].X;
         spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][^1].Y;
@@ -442,10 +476,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][0].Y;
         spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][0].Z;
         
-        spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][^1].Z;
-        
         spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][0].X;
         spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][0].Y;
         spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][0].Z;
@@ -458,10 +488,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][0].X;
         spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][0].Y;
         spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][0].Z;
-        
-        spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][^1].Z;
         
         spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][0].X;
         spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][0].Y;
@@ -481,10 +507,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[0][i].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[0][i].Z;
             
-            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[0][0].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[0][0].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[0][0].Z;
-            
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[0][0].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[0][0].Y;
             spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[0][0].Z;
@@ -493,6 +515,67 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.VBOdata[currentLine * 11 + 10] = spline.TexCoords[i].Y;
 
             spline.Indexes[i] = currentLine;
+
+            ++currentLine;
+        }
+    }
+    
+    private void RecalculateNormals(ref Components.Spline spline)
+    {
+        int currentLine = 0;
+        FillBottomVboNormals(ref spline, ref currentLine);
+        
+        for (int i = 0; i < spline.Path.Count - 1; i++)
+        {
+            FillCenterVboNormals(ref spline, i, ref currentLine);
+        }
+        
+        FillTopVboNormals(ref spline, ref currentLine);
+    }
+
+    private void FillTopVboNormals(ref Components.Spline spline, ref int currentLine)
+    {
+        for (int i = 0; i < spline.Section.Count; i++)
+        {
+            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[^1][0].X : spline.Normals[^1][0].X;
+            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[^1][0].Y : spline.Normals[^1][0].Y;
+            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[^1][0].Z : spline.Normals[^1][0].Z;
+
+            ++currentLine;
+        }
+    }
+    
+    private void FillCenterVboNormals(ref Components.Spline spline, int currentLocation, ref int currentLine)
+    {
+        for (int i = 0; i < spline.Section.Count - 1; i++)
+        {
+            for (int k = 0; k < 4; k++)
+            {
+                spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][i].X : spline.Normals[currentLocation + 1][i].X;
+                spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][i].Y : spline.Normals[currentLocation + 1][i].Y;
+                spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][i].Z : spline.Normals[currentLocation + 1][i].Z;
+    
+                ++currentLine;
+            }
+        }
+        
+        for (int k = 0; k < 4; k++)
+        {
+            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][^1].X : spline.Normals[currentLocation + 1][^1].X;
+            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][^1].Y : spline.Normals[currentLocation + 1][^1].Y;
+            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][^1].Z : spline.Normals[currentLocation + 1][^1].Z;
+        
+            ++currentLine;
+        }
+    }
+
+    private void FillBottomVboNormals(ref Components.Spline spline, ref int currentLine)
+    {
+        for (int i = 0; i < spline.Section.Count; i++)
+        {
+            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[0][0].X : spline.Normals[0][0].X;
+            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[0][0].Y : spline.Normals[0][0].Y;
+            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[0][0].Z : spline.Normals[0][0].Z;
 
             ++currentLine;
         }
