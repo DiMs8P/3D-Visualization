@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using _3D_visualization.Model.SystemComponents.Light;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Render;
@@ -72,17 +71,17 @@ public class ShaderManager
         CreateLampShader();
         CreateSplineShader();
         CreateSplineDebugShader();
-
-        diffuseMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\diffuse.png");
-        specularMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\specular.png");
+        
+        diffuseMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Textures\\diffuse.png");
+        specularMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Textures\\specular.png");
     }
 
     private void CreateLampShader()
     {
         _lampShader = new Shader(
             _openGlControl.OpenGL,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\lamp_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\lamp_fragment.txt"
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\lamp_vertex.txt",
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\lamp_fragment.txt"
         );
     }
 
@@ -90,8 +89,8 @@ public class ShaderManager
     {
         _splineShader = new Shader(
             _openGlControl.OpenGL,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\basic_lightning_fragment.txt"
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\basic_lightning_vertex.txt",
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\basic_lightning_fragment.txt"
         );
     }
     
@@ -99,8 +98,8 @@ public class ShaderManager
     {
         _splineDebugShader = new Shader(
             _openGlControl.OpenGL,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\debug_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\debug_fragment.txt"
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\debug_vertex.txt",
+            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\debug_fragment.txt"
         );
     }
 
