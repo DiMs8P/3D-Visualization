@@ -14,6 +14,7 @@ public struct Spline
 
     public float[] VBOdata;
     public int[] Indexes;
+    public uint SplineVBO = 0;
     public uint SplineVAO = 0;
     public uint SplineEBO = 0;
 

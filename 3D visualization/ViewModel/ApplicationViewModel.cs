@@ -72,4 +72,9 @@ public class ApplicationViewModel
     {
         _game.GameplayEventsListener.InvokeOnTextureEnable(showTextures);
     }
+
+    public void EnableSmoothNormals(bool enableSmoothNormals)
+    {
+        _game.GameplayEventsListener.InvokeOnSmoothNormalsEnable(enableSmoothNormals);
+    }
 }

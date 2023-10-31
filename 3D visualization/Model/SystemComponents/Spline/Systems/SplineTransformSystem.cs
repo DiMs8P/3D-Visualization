@@ -27,7 +27,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             foreach (var splineEntityId in _splineFilter)
             {
                 ref Components.Spline spline = ref _splineComponents.Get(splineEntityId);
-                if (spline.PointsLocation.Count == 0)
+                if (spline.PointsLocation.Count != 0)
                 {
                     RecalculateNormals(ref spline);
                 }
@@ -83,7 +83,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         Vector3 direction = spline.Path[0] - spline.Path[1];
         Vector3 nextDirection = spline.Path[1] - spline.Path[2];
-        InitializeBottomLocations(ref spline, Vector3.Normalize(direction), Vector3.Normalize(nextDirection));
+        InitializeBottomLocations(ref spline, direction, nextDirection);
         
         for (int i = 0; i < spline.Path.Count - 2; i++)
         {
@@ -524,11 +524,22 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         int currentLine = 0;
         FillBottomVboNormals(ref spline, ref currentLine);
-        
-        for (int i = 0; i < spline.Path.Count - 1; i++)
+
+        if (_shoothNormals)
         {
-            FillCenterVboNormals(ref spline, i, ref currentLine);
+            for (int i = 0; i < spline.Path.Count - 1; i++)
+            {
+                FillCenterVboSmoothNormals(ref spline, i, ref currentLine);
+            }
         }
+        else
+        {
+            for (int i = 0; i < spline.Path.Count - 1; i++)
+            {
+                FillCenterVboNormals(ref spline, i, ref currentLine);
+            }
+        }
+
         
         FillTopVboNormals(ref spline, ref currentLine);
     }
@@ -537,9 +548,9 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         for (int i = 0; i < spline.Section.Count; i++)
         {
-            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[^1][0].X : spline.Normals[^1][0].X;
-            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[^1][0].Y : spline.Normals[^1][0].Y;
-            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[^1][0].Z : spline.Normals[^1][0].Z;
+            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[^1][i].X : spline.Normals[^1][0].X;
+            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[^1][i].Y : spline.Normals[^1][0].Y;
+            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[^1][i].Z : spline.Normals[^1][0].Z;
 
             ++currentLine;
         }
@@ -551,9 +562,9 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         {
             for (int k = 0; k < 4; k++)
             {
-                spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][i].X : spline.Normals[currentLocation + 1][i].X;
-                spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][i].Y : spline.Normals[currentLocation + 1][i].Y;
-                spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][i].Z : spline.Normals[currentLocation + 1][i].Z;
+                spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][i].X;
+                spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][i].Y;
+                spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][i].Z;
     
                 ++currentLine;
             }
@@ -561,21 +572,75 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         
         for (int k = 0; k < 4; k++)
         {
-            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][^1].X : spline.Normals[currentLocation + 1][^1].X;
-            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][^1].Y : spline.Normals[currentLocation + 1][^1].Y;
-            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[currentLocation + 1][^1].Z : spline.Normals[currentLocation + 1][^1].Z;
+            spline.VBOdata[currentLine * 11 + 3] = spline.Normals[currentLocation + 1][^1].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.Normals[currentLocation + 1][^1].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.Normals[currentLocation + 1][^1].Z;
         
             ++currentLine;
         }
     }
 
+    private void FillCenterVboSmoothNormals(ref Components.Spline spline, int currentLocation, ref int currentLine)
+    {
+        for (int i = 0; i < spline.Section.Count - 1; i++)
+        {
+            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][i].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][i].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][i].Z;
+    
+            ++currentLine;
+            
+            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][i].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][i].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][i].Z;
+    
+            ++currentLine;
+            
+            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][i + 1].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][i + 1].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][i + 1].Z;
+    
+            ++currentLine;
+            
+            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][i + 1].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][i + 1].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][i + 1].Z;
+    
+            ++currentLine;
+        }
+        
+        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][^1].X;
+        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][^1].Y;
+        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][^1].Z;
+    
+        ++currentLine;
+            
+        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][^1].X;
+        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][^1].Y;
+        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][^1].Z;
+    
+        ++currentLine;
+            
+        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][0].X;
+        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][0].Y;
+        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][0].Z;
+    
+        ++currentLine;
+            
+        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][0].X;
+        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][0].Y;
+        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][0].Z;
+    
+        ++currentLine;
+    }
+    
     private void FillBottomVboNormals(ref Components.Spline spline, ref int currentLine)
     {
         for (int i = 0; i < spline.Section.Count; i++)
         {
-            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[0][0].X : spline.Normals[0][0].X;
-            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[0][0].Y : spline.Normals[0][0].Y;
-            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[0][0].Z : spline.Normals[0][0].Z;
+            spline.VBOdata[currentLine * 11 + 3] = _shoothNormals ? spline.SmoothNormals[0][i].X : spline.Normals[0][0].X;
+            spline.VBOdata[currentLine * 11 + 4] = _shoothNormals ? spline.SmoothNormals[0][i].Y : spline.Normals[0][0].Y;
+            spline.VBOdata[currentLine * 11 + 5] = _shoothNormals ? spline.SmoothNormals[0][i].Z : spline.Normals[0][0].Z;
 
             ++currentLine;
         }

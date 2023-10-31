@@ -98,12 +98,12 @@ public partial class MainWindow : Window
 
     private void NormalSmoothingCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
-        /*throw new NotImplementedException();*/
+        _applicationViewModel.EnableSmoothNormals(false);
     }
 
     private void NormalSmoothingCheckbox_Checked(object sender, RoutedEventArgs e)
     {
-        /*throw new NotImplementedException();*/
+        _applicationViewModel.EnableSmoothNormals(true);
     }
 
     private void CameraComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
