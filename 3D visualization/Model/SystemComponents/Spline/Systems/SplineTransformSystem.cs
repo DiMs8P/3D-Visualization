@@ -96,11 +96,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             point.Z += spline.Path[0].Z;
             
             spline.PointsLocation[0][i] = point;
-            
-            /*
-            spline.VBOdata[i * 11] = point.X;
-            spline.VBOdata[i * 11 + 1] = point.Y;
-            spline.VBOdata[i * 11 + 2] = point.Z;*/
         }
     }
 

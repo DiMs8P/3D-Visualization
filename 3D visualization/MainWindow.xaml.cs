@@ -33,6 +33,7 @@ public partial class MainWindow : Window
     {
         OpenGLControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
         OpenGLControl.OpenGL.Enable(OpenGL.GL_TEXTURE_2D);
+        OpenGLControl.OpenGL.Enable(OpenGL.GL_AUTO_NORMAL);
         
         _applicationViewModel.Initialize(OpenGLControl, 60);
         _applicationViewModel.SetReplicationObjects("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\splineData.txt");
