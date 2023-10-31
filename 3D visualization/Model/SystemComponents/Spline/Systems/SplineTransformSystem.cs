@@ -68,10 +68,10 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         
         for (int i = 0; i < spline.Path.Count - 2; i++)
         {
-            InitializeCenterLocations(ref spline, i + 1, direction, nextDirection);
-            
             direction = spline.Path[i] - spline.Path[i + 1];
             nextDirection = spline.Path[i + 1] - spline.Path[i + 2];
+            
+            InitializeCenterLocations(ref spline, i + 1, direction, nextDirection);
         }
         
         InitializeTopLocations(ref spline, direction, nextDirection);
@@ -79,21 +79,29 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     
     private void InitializeBottomLocations(ref Components.Spline spline, Vector3 direction, Vector3 nextDirection)
     {
-        Vector3 crossVector = Vector3.Cross(direction, nextDirection);
+        int sign = nextDirection.Y < direction.Y ? 1 : -1;
+        Vector3 crossVector = Vector3.Cross(direction, nextDirection) * sign;
+        Vector3 newX = Vector3.Normalize(crossVector);
+        Vector3 newZ = Vector3.Normalize(direction);
+        Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
         
-        float zAngle = MathHelper.CalculateAngle(Vector3.UnitZ, direction with { Y = 0 });
-        float xAngle = MathHelper.CalculateAngle(direction with { Y = 0 }, direction);
-        float yAngle = MathHelper.CalculateAngle(crossVector with { Y = 0 }, crossVector);
+        float[,] matrix = {
+            {newX.X, newY.X, newZ.X},
+            {newX.Y, newY.Y, newZ.Y},
+            {newX.Z, newY.Z, newZ.Z}
+        };
         
         for (int i = 0; i < spline.Section.Count; i++)
         {
             Vector3 point = new Vector3(spline.Section[i].X, spline.Section[i].Y, 0);
-            point = MathHelper.RotateY(point, zAngle);
-            point = MathHelper.RotateX(point, xAngle);
-            point = MathHelper.RotateZ(point, yAngle);
-            point.X += spline.Path[0].X;
-            point.Y += spline.Path[0].Y;
-            point.Z += spline.Path[0].Z;
+            
+            float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
+            float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
+            float z = matrix[2, 0] * point.X + matrix[2, 1] * point.Y + matrix[2, 2] * point.Z;
+            
+            point.X = spline.Path[0].X + x;
+            point.Y = spline.Path[0].Y + y;
+            point.Z = spline.Path[0].Z + z;
             
             spline.PointsLocation[0][i] = point;
         }
@@ -101,22 +109,29 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
 
     private void InitializeCenterLocations(ref Components.Spline spline, int currentLocation, Vector3 direction, Vector3 nextDirection)
     {
-        Vector3 crossVector = Vector3.Cross(direction, nextDirection);
+        int sign = nextDirection.Y < direction.Y ? 1 : -1;
+        Vector3 crossVector = Vector3.Cross(direction, nextDirection) * sign;
+        Vector3 newX = Vector3.Normalize(crossVector);
+        Vector3 newZ = Vector3.Normalize(direction);
+        Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
         
-        float zAngle = MathHelper.CalculateAngle(Vector3.UnitZ, direction with { Y = 0 });
-        float xAngle = MathHelper.CalculateAngle(direction with { Y = 0 }, direction);
-        float yAngle = MathHelper.CalculateAngle(crossVector with { Y = 0 }, crossVector);
-        float directionsAngle = MathHelper.CalculateAngle(direction, nextDirection);
-        
+        float[,] matrix = {
+            {newX.X, newY.X, newZ.X},
+            {newX.Y, newY.Y, newZ.Y},
+            {newX.Z, newY.Z, newZ.Z}
+        };
+
         for (int i = 0; i < spline.Section.Count; i++)
         {
             Vector3 point = new Vector3(spline.Section[i].X, spline.Section[i].Y, 0);
-            point = MathHelper.RotateY(point, zAngle);
-            point = MathHelper.RotateX(point, xAngle);
-            point = MathHelper.RotateZ(point, yAngle + directionsAngle / 2);
-            point.X += spline.Path[currentLocation].X;
-            point.Y += spline.Path[currentLocation].Y;
-            point.Z += spline.Path[currentLocation].Z;
+            
+            float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
+            float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
+            float z = matrix[2, 0] * point.X + matrix[2, 1] * point.Y + matrix[2, 2] * point.Z;
+
+            point.X = spline.Path[currentLocation].X + x;
+            point.Y = spline.Path[currentLocation].Y + y;
+            point.Z = spline.Path[currentLocation].Z + z;
             
             spline.PointsLocation[currentLocation][i] = point;
         }
@@ -124,21 +139,29 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     
     private void InitializeTopLocations(ref Components.Spline spline, Vector3 direction, Vector3 nextDirection)
     {
-        Vector3 crossVector = Vector3.Cross(direction, nextDirection);
+        int sign = nextDirection.Y < direction.Y ? 1 : -1;
+        Vector3 crossVector = Vector3.Cross(direction, nextDirection) * sign;
+        Vector3 newX = Vector3.Normalize(crossVector);
+        Vector3 newZ = Vector3.Normalize(direction);
+        Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
         
-        float zAngle = MathHelper.CalculateAngle(Vector3.UnitZ, direction with { Y = 0 });
-        float xAngle = MathHelper.CalculateAngle(direction with { Y = 0 }, direction);
-        float yAngle = MathHelper.CalculateAngle(crossVector with { Y = 0 }, crossVector);
+        float[,] matrix = {
+            {newX.X, newY.X, newZ.X},
+            {newX.Y, newY.Y, newZ.Y},
+            {newX.Z, newY.Z, newZ.Z}
+        };
         
         for (int i = 0; i < spline.Section.Count; i++)
         {
             Vector3 point = new Vector3(spline.Section[i].X, spline.Section[i].Y, 0);
-            point = MathHelper.RotateY(point, zAngle);
-            point = MathHelper.RotateX(point, xAngle);
-            point = MathHelper.RotateZ(point, yAngle);
-            point.X += spline.Path[^1].X;
-            point.Y += spline.Path[^1].Y;
-            point.Z += spline.Path[^1].Z;
+            
+            float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
+            float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
+            float z = matrix[2, 0] * point.X + matrix[2, 1] * point.Y + matrix[2, 2] * point.Z;
+            
+            point.X = spline.Path[^1].X + x;
+            point.Y = spline.Path[^1].Y + y;
+            point.Z = spline.Path[^1].Z + z;
             
             spline.PointsLocation[^1][i] = point;
         }

@@ -123,7 +123,9 @@ public class SplineRenderSystem: IEcsInitSystem, IEcsRunSystem
         openGl.EnableVertexAttribArray(2);
         openGl.EnableVertexAttribArray(3);
         
-        openGl.DrawElements(OpenGL.GL_TRIANGLES, spline.Indexes.Length, OpenGL.GL_UNSIGNED_INT, IntPtr.Zero);
+        openGl.DrawElements(OpenGL.GL_TRIANGLES, spline.Indexes.Length - 2 * spline.Section.Count(), OpenGL.GL_UNSIGNED_INT, new IntPtr(sizeof(float) * spline.Section.Count()));
+        openGl.DrawElements(OpenGL.GL_POLYGON, spline.Section.Count(), OpenGL.GL_UNSIGNED_INT, IntPtr.Zero);
+        openGl.DrawElements(OpenGL.GL_POLYGON, spline.Section.Count(), OpenGL.GL_UNSIGNED_INT, new IntPtr(sizeof(float) * (spline.Indexes.Length - spline.Section.Count())));
         
         openGl.DisableVertexAttribArray(0);
         openGl.DisableVertexAttribArray(1);
