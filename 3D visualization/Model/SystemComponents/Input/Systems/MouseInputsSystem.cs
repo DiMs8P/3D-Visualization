@@ -69,8 +69,6 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
                 mouseRotation.Pitch =  89.0f;
             if(mouseRotation.Pitch < -89.0f)
                 mouseRotation.Pitch = -89.0f;
-            
-            Console.WriteLine(_previousMousePosition.ToString());
         }
 
         _previousMousePosition = _currentMousePosition;

@@ -8,7 +8,7 @@ public struct MouseRotation
 
     public MouseRotation()
     {
-        Sensitivity = 0.15f;
+        Sensitivity = 0.1f;
         Yaw = -90.0f;
         Pitch = 0.0f;
     }
