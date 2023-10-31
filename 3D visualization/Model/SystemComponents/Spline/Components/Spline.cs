@@ -18,8 +18,9 @@ public struct Spline
     public uint SplineVAO = 0;
     public uint SplineEBO = 0;
 
+    public float[] Scale;
 
-    public Spline(List<Vector2> section, List<Vector3> path)
+    public Spline(List<Vector2> section, List<Vector3> path, float[] scale)
     {
         Section = section;
         Path = path;
@@ -33,5 +34,7 @@ public struct Spline
                                   (4 * (path.Count() - 1) * section.Count()))];
 
         Indexes = new int[2 * section.Count() + 6 * section.Count() * (path.Count() - 1)];
+
+        Scale = scale;
     }
 }

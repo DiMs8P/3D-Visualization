@@ -55,7 +55,7 @@ public class ApplicationViewModel
     {
         var replicationData = SplineUtils.TryParse(fileName);
         _game.Factory.Create()
-            .Add<Spline>(new Spline(replicationData.Item1, replicationData.Item2));
+            .Add<Spline>(new Spline(replicationData.Item1, replicationData.Item2, replicationData.Item3));
     }
 
     public void DrawNormals(bool drawNormals)

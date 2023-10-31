@@ -7,7 +7,7 @@ namespace _3D_visualization.Model.Utils;
 
 public class SplineUtils
 {
-    public static (List<Vector2>, List<Vector3>) TryParse(string fileName)
+    public static (List<Vector2>, List<Vector3>, float[]) TryParse(string fileName)
     {
         string[] lines = File.ReadAllLines(fileName);
 
@@ -16,13 +16,15 @@ public class SplineUtils
             return ParseLines(lines);
         }
 
-        return (null, null);
+        return (null, null, null);
     }
 
-    private static (List<Vector2>, List<Vector3>) ParseLines(string[] lines)
+    private static (List<Vector2>, List<Vector3>, float[]) ParseLines(string[] lines)
     {
         List<Vector2> section = new List<Vector2>();
         List<Vector3> path = new List<Vector3>();
+        List<float> scale = new List<float>();
+        
         for (int i = 0; i < lines.Length; i++)
         {
             string[] tokens = lines[i].Split(' ');
@@ -37,7 +39,7 @@ public class SplineUtils
                     );
             }
             
-            if (tokens.Length == 3)
+            if (tokens.Length == 4)
             {
                 path.Add(
                     new Vector3(
@@ -46,6 +48,8 @@ public class SplineUtils
                         float.Parse(tokens[2], CultureInfo.InvariantCulture)
                     )
                 );
+                
+                scale.Add(float.Parse(tokens[3], CultureInfo.InvariantCulture));
             }
         }
         
@@ -54,7 +58,7 @@ public class SplineUtils
             throw new ReplicationArgumentException(-1, "path can't contain 1 path point");
         }
 
-        return (section, path);
+        return (section, path, scale.ToArray());
     }
 
     public static bool IsFileValid(string[] lines)
@@ -73,18 +77,19 @@ public class SplineUtils
                     throw new ReplicationArgumentException(i, "failed parse section");
                 }
             }
-            else if (tokens.Length == 3)
+            else if (tokens.Length == 4)
             {
                 if (!float.TryParse(tokens[0], NumberStyles.Float, CultureInfo.InvariantCulture, out result)
                     || !float.TryParse(tokens[1], NumberStyles.Float, CultureInfo.InvariantCulture, out result)
-                    || !float.TryParse(tokens[2], NumberStyles.Float, CultureInfo.InvariantCulture, out result))
+                    || !float.TryParse(tokens[2], NumberStyles.Float, CultureInfo.InvariantCulture, out result)
+                    || !float.TryParse(tokens[3], NumberStyles.Float, CultureInfo.InvariantCulture, out result))
                 {
                     throw new ReplicationArgumentException(i, "failed parse path");
                 }
             }
             else
             {
-                throw new ReplicationArgumentException(i, "in line you must have 2 or 3 numbers");
+                throw new ReplicationArgumentException(i, "in line you must have 2 or 4 numbers");
             }
         }
 

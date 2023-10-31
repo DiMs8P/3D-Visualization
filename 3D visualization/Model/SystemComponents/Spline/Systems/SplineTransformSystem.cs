@@ -113,7 +113,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         
         for (int i = 0; i < spline.Section.Count; i++)
         {
-            Vector3 point = new Vector3(spline.Section[i].X, spline.Section[i].Y, 0);
+            Vector3 point = new Vector3(spline.Section[i].X * spline.Scale[0], spline.Section[i].Y * spline.Scale[0], 0);
             
             float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
             float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
@@ -144,7 +144,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
 
         for (int i = 0; i < spline.Section.Count; i++)
         {
-            Vector3 point = new Vector3(spline.Section[i].X, spline.Section[i].Y, 0);
+            Vector3 point = new Vector3(spline.Section[i].X * spline.Scale[currentLocation], spline.Section[i].Y  * spline.Scale[currentLocation], 0);
             
             float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
             float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
@@ -175,7 +175,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         
         for (int i = 0; i < spline.Section.Count; i++)
         {
-            Vector3 point = new Vector3(spline.Section[i].X, spline.Section[i].Y, 0);
+            Vector3 point = new Vector3(spline.Section[i].X * spline.Scale[^1] , spline.Section[i].Y * spline.Scale[^1], 0);
             
             float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
             float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
@@ -245,7 +245,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
 
     private void InitializeBottomNormals(ref Components.Spline spline)
     {
-        spline.Normals[0].Add(spline.Path[0] - spline.Path[1]);
+        spline.Normals[0].Add(Vector3.Normalize(spline.Path[0] - spline.Path[1]));
     }
     
     private void InitializeCenterNormals(ref Components.Spline spline, int currentLocation)
@@ -253,21 +253,21 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         Vector3 a, b;
         for (int i = 1; i < spline.Section.Count; i++)
         {
-            a = spline.PointsLocation[currentLocation][i - 1] - spline.PointsLocation[currentLocation][i];
-            b = spline.PointsLocation[currentLocation + 1][i] - spline.PointsLocation[currentLocation][i];
+            a = spline.PointsLocation[currentLocation + 1][i - 1] - spline.PointsLocation[currentLocation][i - 1];
+            b = spline.PointsLocation[currentLocation][i] - spline.PointsLocation[currentLocation][i - 1];
             
             spline.Normals[currentLocation + 1].Add(Vector3.Normalize(Vector3.Cross(a, b)));
         }
         
-        a = spline.PointsLocation[currentLocation][^1] - spline.PointsLocation[currentLocation][0];
-        b = spline.PointsLocation[currentLocation + 1][0] - spline.PointsLocation[currentLocation][0];
+        a = spline.PointsLocation[currentLocation + 1][^1] - spline.PointsLocation[currentLocation][^1];
+        b = spline.PointsLocation[currentLocation][0] - spline.PointsLocation[currentLocation][^1];
             
         spline.Normals[currentLocation + 1].Add(Vector3.Normalize(Vector3.Cross(a, b)));
     }
     
     private void InitializeTopNormals(ref Components.Spline spline)
     {
-        spline.Normals[^1].Add(spline.Path[^1] - spline.Path[^2]);
+        spline.Normals[^1].Add(Vector3.Normalize(spline.Path[^1] - spline.Path[^2]));
     }
     
     private void UpdateSplinePointsColors(ref Components.Spline spline)
