@@ -86,7 +86,6 @@ public class SplineRenderSystem : IEcsInitSystem, IEcsRunSystem
             DrawSpline(ref spline, _openGlControl.OpenGL);
 
             _shaderManager.UseDefaultShader();
-
             if (_drawNormals)
             {
                 DrawNormals(ref spline, _openGlControl.OpenGL);
