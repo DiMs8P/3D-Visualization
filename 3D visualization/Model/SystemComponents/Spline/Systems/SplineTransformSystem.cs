@@ -64,23 +64,24 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         Vector3 direction = spline.Path[0] - spline.Path[1];
         Vector3 nextDirection = spline.Path[1] - spline.Path[2];
-        InitializeBottomLocations(ref spline, direction, nextDirection);
+        InitializeBottomLocations(ref spline, Vector3.Normalize(direction), Vector3.Normalize(nextDirection));
         
         for (int i = 0; i < spline.Path.Count - 2; i++)
         {
             direction = spline.Path[i] - spline.Path[i + 1];
             nextDirection = spline.Path[i + 1] - spline.Path[i + 2];
             
-            InitializeCenterLocations(ref spline, i + 1, direction, nextDirection);
+            InitializeCenterLocations(ref spline, i + 1, Vector3.Normalize(direction), Vector3.Normalize(nextDirection));
         }
         
-        InitializeTopLocations(ref spline, direction, nextDirection);
+        InitializeTopLocations(ref spline, nextDirection, direction);
     }
     
     private void InitializeBottomLocations(ref Components.Spline spline, Vector3 direction, Vector3 nextDirection)
     {
         int sign = nextDirection.Y < direction.Y ? 1 : -1;
         Vector3 crossVector = Vector3.Cross(direction, nextDirection) * sign;
+        
         Vector3 newX = Vector3.Normalize(crossVector);
         Vector3 newZ = Vector3.Normalize(direction);
         Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
@@ -111,9 +112,10 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         int sign = nextDirection.Y < direction.Y ? 1 : -1;
         Vector3 crossVector = Vector3.Cross(direction, nextDirection) * sign;
+        
+        Vector3 newZ = Vector3.Normalize((direction + nextDirection) / 2);
         Vector3 newX = Vector3.Normalize(crossVector);
-        Vector3 newZ = Vector3.Normalize(direction);
-        Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
+        Vector3 newY = Vector3.Normalize(Vector3.Cross(newZ, crossVector));
         
         float[,] matrix = {
             {newX.X, newY.X, newZ.X},
@@ -141,6 +143,7 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         int sign = nextDirection.Y < direction.Y ? 1 : -1;
         Vector3 crossVector = Vector3.Cross(direction, nextDirection) * sign;
+        
         Vector3 newX = Vector3.Normalize(crossVector);
         Vector3 newZ = Vector3.Normalize(direction);
         Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
