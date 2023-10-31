@@ -31,7 +31,7 @@
                 
                 <StackPanel Grid.Row="2" Margin="20">
                     <TextBlock Text="Выберите тип камеры" HorizontalAlignment="Center"/>
-                    <ComboBox SelectedIndex="1" SelectionChanged="CameraComboBox_SelectionChanged">
+                    <ComboBox Name = "CameraTypeComboBox" SelectedIndex="1" SelectionChanged="CameraComboBox_SelectionChanged">
                         <ComboBoxItem>Ортографическая</ComboBoxItem>
                         <ComboBoxItem>Перспективная</ComboBoxItem>
                     </ComboBox>

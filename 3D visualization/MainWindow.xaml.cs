@@ -16,9 +16,6 @@ namespace _3D_visualization;
 /// </summary>
 public partial class MainWindow : Window
 {
-    [DllImport("User32.dll")]
-    private static extern bool SetCursorPos(int X, int Y);
-    
     private ApplicationViewModel _applicationViewModel;
     public MainWindow()
     {
@@ -34,7 +31,6 @@ public partial class MainWindow : Window
     
     private void OpenGLControl_OpenGLInitialized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        // TODO remove
         OpenGLControl.OpenGL.Enable(OpenGL.GL_DEPTH_TEST);
         OpenGLControl.OpenGL.Enable(OpenGL.GL_TEXTURE_2D);
         
@@ -44,21 +40,7 @@ public partial class MainWindow : Window
 
     private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
     {
-        OpenGL gl = OpenGLControl.OpenGL;
-
-        gl.MatrixMode(OpenGL.GL_PROJECTION);
-
-        //  Load the identity.
-        gl.LoadIdentity();
-        
-        //  Create a perspective transformation.
-        
-        // Set Ortho projection
-        //gl.Ortho(-8.0, 8.0, -8.0, 8.0, 0.01, 100.0);
-        gl.Perspective(60.0f, OpenGLControl.ActualWidth / OpenGLControl.ActualHeight, 0.01, 100.0);
-
-        //  Set the modelview matrix.
-        gl.MatrixMode(OpenGL.GL_MODELVIEW);
+        UpdateProjectionMatrix(((ComboBoxItem)CameraTypeComboBox.SelectedItem).Content.ToString());
     }
 
     private void Button_OpenFile(object sender, RoutedEventArgs e)
@@ -115,27 +97,29 @@ public partial class MainWindow : Window
 
     private void NormalSmoothingCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        /*throw new NotImplementedException();*/
     }
 
     private void NormalSmoothingCheckbox_Checked(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        /*throw new NotImplementedException();*/
     }
 
     private void CameraComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        /*throw new NotImplementedException();*/
+        if (String.IsNullOrEmpty(CameraTypeComboBox.Text))
+        {
+            return;
+        }
+        
+        UpdateProjectionMatrix(((ComboBoxItem)CameraTypeComboBox.SelectedItem).Content.ToString());
     }
 
     private void OpenGLControl_MouseMove(object sender, MouseEventArgs e)
     {
         if (OpenGLControl.Focusable)
         {
-            //Mouse.OverrideCursor = Cursors.None;
-            
             _applicationViewModel.MouseHover(e.GetPosition(OpenGLControl)); 
-            //SetCursor((int)App.Current.MainWindow.Width / 2, (int)App.Current.MainWindow.Height / 2);
         }
     }
 
@@ -166,38 +150,27 @@ public partial class MainWindow : Window
         OpenGLControl.Focusable = true;
     }
     
-    private static void SetCursor(int x, int y)
+    private void UpdateProjectionMatrix(string cameraType)
     {
-        // Left boundary
-        var xL = (int)App.Current.MainWindow.Left;
-        // Right boundary
-        var xR = xL + (int)App.Current.MainWindow.Width;
-        // Top boundary
-        var yT = (int)App.Current.MainWindow.Top;
-        // Bottom boundary
-        var yB = yT + (int)App.Current.MainWindow.Height;
-
-        x += xL;
-        y += yT;
-
-        if (x < xL)
+        OpenGL gl = OpenGLControl.OpenGL;
+        
+        if (cameraType == "Ортографическая")
         {
-            x = xL;
-        }
-        else if (x > xR)
-        {
-            x = xR;
-        }
+            gl.MatrixMode(OpenGL.GL_PROJECTION);
 
-        if (y < yT)
-        {
-            y = yT;
+            gl.LoadIdentity();
+            gl.Ortho(-2, 2, -2, 2, 0.01, 100);
+            
+            gl.MatrixMode(OpenGL.GL_MODELVIEW);
         }
-        else if (y > yB)
+        else if (cameraType == "Перспективная")
         {
-            y = yB;
-        }
+            gl.MatrixMode(OpenGL.GL_PROJECTION);
 
-        SetCursorPos(x, y);
+            gl.LoadIdentity();
+            gl.Perspective(60.0f, OpenGLControl.ActualWidth / OpenGLControl.ActualHeight, 0.01, 100.0);
+
+            gl.MatrixMode(OpenGL.GL_MODELVIEW);
+        }
     }
 }

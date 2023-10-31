@@ -11,9 +11,10 @@ namespace _3D_visualization.Model.SystemComponents.MainCamera.System;
 
 public class MainCameraRenderSystem : IEcsInitSystem, IEcsRunSystem
 {
-    [EcsInject] private OpenGLControl _openGlControl;
-    private EcsPool<Location> _locationComponents;
-    private EcsPool<Rotation> _rotationComponents;
+    [EcsInject] OpenGLControl _openGlControl;
+    
+    EcsPool<Location> _locationComponents;
+    EcsPool<Rotation> _rotationComponents;
     
     private EcsFilter _playerCameraFilter;
     

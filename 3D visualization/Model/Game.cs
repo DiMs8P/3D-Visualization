@@ -68,7 +68,6 @@ public class Game
             .Add(new PlayerObservationSystem())
             .Add(new PlayerMovementSystem())
             .Add(new OwnershipSystem())
-            .Add(new CameraSystem())
             .Add(new SplineTransformSystem())
             .Inject(new AutoMapper2D())
             .Init();

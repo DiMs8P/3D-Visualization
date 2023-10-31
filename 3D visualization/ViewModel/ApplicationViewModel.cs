@@ -2,6 +2,7 @@
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
+using _3D_visualization.DataTypes;
 using _3D_visualization.Model;
 using _3D_visualization.Model.SystemComponents.Spline.Components;
 using _3D_visualization.Model.Utils;

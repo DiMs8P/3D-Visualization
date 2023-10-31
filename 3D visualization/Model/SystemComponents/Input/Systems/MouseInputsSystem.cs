@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 using _3D_visualization.Model.Events;
 using _3D_visualization.Model.Input.Components;
 using _3D_visualization.Model.SystemComponents.Input.Components;
@@ -21,6 +22,7 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
     private Point _currentMousePosition;
     
     private int _mouseInputEntityId;
+    private bool _firstTime = true;
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();
@@ -29,8 +31,17 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
         _mouseRotationComponent = world.GetPool<MouseRotation>();
         _inputsEventsListener.OnMouseMoveEvent += point =>
         {
-            _previousMousePosition = _currentMousePosition;
-            _currentMousePosition = point;
+            if (_firstTime)
+            {
+                _previousMousePosition = point;
+                _currentMousePosition = point;
+                
+                _firstTime = false;
+            }
+            else
+            {
+                _currentMousePosition = point;
+            }
         };
 
         _mouseInputEntityId = EntityUtils.GetUniqueEntityIdFromFilter(_mouseInputs);
@@ -38,23 +49,30 @@ public class MouseInputsSystem : IEcsInitSystem, IEcsRunSystem
 
     public void Run(IEcsSystems systems)
     {
-        ref MousePosition mousePosition = ref _mousePositionComponent.Get(_mouseInputEntityId);
-        ref MouseRotation mouseRotation = ref _mouseRotationComponent.Get(_mouseInputEntityId);
-        mousePosition.CurrentMousePosition = _currentMousePosition;
-        mousePosition.PreviousMousePosition = _previousMousePosition;
+        if (Mouse.LeftButton == MouseButtonState.Pressed)
+        {
+            ref MousePosition mousePosition = ref _mousePositionComponent.Get(_mouseInputEntityId);
+            ref MouseRotation mouseRotation = ref _mouseRotationComponent.Get(_mouseInputEntityId);
+            mousePosition.CurrentMousePosition = _currentMousePosition;
+            mousePosition.PreviousMousePosition = _previousMousePosition;
         
-        double xOffset = _currentMousePosition.X - _previousMousePosition.X;
-        double yOffset = _previousMousePosition.Y - _currentMousePosition.Y;
+            double xOffset = _currentMousePosition.X - _previousMousePosition.X;
+            double yOffset = _previousMousePosition.Y - _currentMousePosition.Y;
         
-        xOffset *= mouseRotation.Sensitivity;
-        yOffset *= mouseRotation.Sensitivity;
+            xOffset *= mouseRotation.Sensitivity;
+            yOffset *= mouseRotation.Sensitivity;
         
-        mouseRotation.Yaw   += (float)xOffset;
-        mouseRotation.Pitch += (float)yOffset;
+            mouseRotation.Yaw   += (float)xOffset;
+            mouseRotation.Pitch += (float)yOffset;
         
-        if(mouseRotation.Pitch > 89.0f)
-            mouseRotation.Pitch =  89.0f;
-        if(mouseRotation.Pitch < -89.0f)
-            mouseRotation.Pitch = -89.0f;
+            if(mouseRotation.Pitch > 89.0f)
+                mouseRotation.Pitch =  89.0f;
+            if(mouseRotation.Pitch < -89.0f)
+                mouseRotation.Pitch = -89.0f;
+            
+            Console.WriteLine(_previousMousePosition.ToString());
+        }
+
+        _previousMousePosition = _currentMousePosition;
     }
 }

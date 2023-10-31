@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using _3D_visualization.DataTypes;
 
 namespace _3D_visualization.Model.Events;
 
@@ -15,7 +16,7 @@ public class GameplayEventsListener
     
     public delegate void OnSmoothNormalsEnable(bool smoothNormalsEnable);
     public event OnSmoothNormalsEnable OnSmoothNormalsEnableEvent;
-
+    
     public void InvokeOnTextureEnable(bool textureEnable)
     {
         var handler = OnTextureEnableEvent;
