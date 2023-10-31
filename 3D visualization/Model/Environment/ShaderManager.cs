@@ -72,16 +72,16 @@ public class ShaderManager
         CreateSplineShader();
         CreateSplineDebugShader();
         
-        diffuseMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Textures\\diffuse.png");
-        specularMap = LoadTexture("D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Textures\\specular.png");
+        diffuseMap = LoadTexture(System.Environment.CurrentDirectory + "\\Source\\Textures\\diffuse.png");
+        specularMap = LoadTexture(System.Environment.CurrentDirectory + "\\Source\\Textures\\specular.png");
     }
 
     private void CreateLampShader()
     {
         _lampShader = new Shader(
             _openGlControl.OpenGL,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\lamp_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\lamp_fragment.txt"
+            System.Environment.CurrentDirectory + "\\Source\\Shaders\\lamp_vertex.txt",
+            System.Environment.CurrentDirectory + "\\Source\\Shaders\\lamp_fragment.txt"
         );
     }
 
@@ -89,8 +89,8 @@ public class ShaderManager
     {
         _splineShader = new Shader(
             _openGlControl.OpenGL,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\basic_lightning_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\basic_lightning_fragment.txt"
+            System.Environment.CurrentDirectory + "\\Source\\Shaders\\basic_lightning_vertex.txt",
+            System.Environment.CurrentDirectory + "\\Source\\Shaders\\basic_lightning_fragment.txt"
         );
     }
     
@@ -98,8 +98,8 @@ public class ShaderManager
     {
         _splineDebugShader = new Shader(
             _openGlControl.OpenGL,
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\debug_vertex.txt",
-            "D:\\RiderProjects\\3D visualization\\3D visualization\\Source\\Shaders\\debug_fragment.txt"
+            System.Environment.CurrentDirectory + "\\Source\\Shaders\\debug_vertex.txt",
+            System.Environment.CurrentDirectory + "\\Source\\Shaders\\debug_fragment.txt"
         );
     }
 
@@ -123,7 +123,6 @@ public class ShaderManager
         _splineShader.SetBool("material.active", showTextures);
         if (showTextures)
         {
-            
             _splineShader.SetInt("material.diffuse", 0);
             _splineShader.SetInt("material.specular", 1);
         
