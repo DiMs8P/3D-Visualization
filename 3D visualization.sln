@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3D visualization", "3D visualization\3D visualization.csproj", "{A09C74D7-66BE-4CBC-80E4-CF66F4F6C815}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecs", "Ecs\Ecs.csproj", "{1E813F88-9F27-4260-A86D-2FC52DC3A6F5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A09C74D7-66BE-4CBC-80E4-CF66F4F6C815}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A09C74D7-66BE-4CBC-80E4-CF66F4F6C815}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A09C74D7-66BE-4CBC-80E4-CF66F4F6C815}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A09C74D7-66BE-4CBC-80E4-CF66F4F6C815}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E813F88-9F27-4260-A86D-2FC52DC3A6F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E813F88-9F27-4260-A86D-2FC52DC3A6F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E813F88-9F27-4260-A86D-2FC52DC3A6F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E813F88-9F27-4260-A86D-2FC52DC3A6F5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
