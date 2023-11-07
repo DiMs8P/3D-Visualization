@@ -20,6 +20,8 @@
                     <RowDefinition Height="*"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Margin="20" >
                     <Button Content="Открыть файл" Width="Auto" Height="Auto" VerticalAlignment="Top" Click="Button_OpenFile"/>
@@ -40,11 +42,33 @@
                 <GridSplitter Grid.Row="3" ShowsPreview="False" Height="3"
                               HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                 <StackPanel Grid.Row="4" Margin="20">
+                    <TextBlock Text="Освещение" HorizontalAlignment="Center"/>
+                    <CheckBox Name="DirectionalLightCheckbox" IsChecked="False"
+                              Unchecked="DirectionalLightCheckbox_Unchecked"
+                              Checked="DirectionalLightCheckbox_Checked" >
+                    <TextBlock Text="Нарпавленное" TextWrapping="Wrap"/>
+                    </CheckBox>
+                    <CheckBox Name="PointLightCheckbox" IsChecked="False"
+                              Unchecked="PointLightCheckbox_Unchecked"
+                              Checked="PointLightCheckbox_Checked" >
+                        <TextBlock Text="Точечное" TextWrapping="Wrap"/>
+                    </CheckBox>
+                    <CheckBox Name="SpotLightCheckbox" IsChecked="False"
+                              Unchecked="SpotLightCheckbox_Unchecked"
+                              Checked="SpotLightCheckbox_Checked" >
+                        <TextBlock Text="Прожекторное" TextWrapping="Wrap"/>
+                    </CheckBox>
+                </StackPanel>
+                
+                <GridSplitter Grid.Row="5" ShowsPreview="False" Height="3"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                
+                <StackPanel Grid.Row="6" Margin="20">
                     <TextBlock Text="Фильтры" HorizontalAlignment="Center"/>
                     <CheckBox Name="WireframeCheckbox" IsChecked="False"
                               Unchecked="WireframeCheckbox_Unchecked"
                               Checked="WireframeCheckbox_Checked" >
-                    <TextBlock Text="Показать каркас" TextWrapping="Wrap"/>
+                        <TextBlock Text="Показать каркас" TextWrapping="Wrap"/>
                     </CheckBox>
                     <CheckBox Name="NormalCheckbox" IsChecked="False"
                               Unchecked="NormalCheckbox_Unchecked"

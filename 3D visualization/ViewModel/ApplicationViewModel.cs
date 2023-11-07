@@ -77,4 +77,19 @@ public class ApplicationViewModel
     {
         _game.GameplayEventsListener.InvokeOnSmoothNormalsEnable(enableSmoothNormals);
     }
+
+    public void UseDirectionalLight(bool useDirectionalLight)
+    {
+        _game.GameplayEventsListener.InvokeOnDirectionalLightEnable(useDirectionalLight);
+    }
+
+    public void UsePointLight(bool usePointLight)
+    {
+        _game.GameplayEventsListener.InvokeOnPointLightEnable(usePointLight);
+    }
+
+    public void UseSpotLight(bool useSpotLight)
+    {
+        _game.GameplayEventsListener.InvokeOnSpotLightEnable(useSpotLight);
+    }
 }

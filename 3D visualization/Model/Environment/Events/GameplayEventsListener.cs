@@ -5,6 +5,15 @@ namespace _3D_visualization.Model.Events;
 
 public class GameplayEventsListener
 {
+    public delegate void OnDirectionalLightEnable(bool directionalLightEnable);
+    public event OnDirectionalLightEnable OnDirectionalLightEnableEvent;
+    
+    public delegate void OnPointLightEnable(bool pointLightEnable);
+    public event OnPointLightEnable OnPointLightEnableEvent;
+    
+    public delegate void OnSpotLightEnable(bool spotLightEnable);
+    public event OnSpotLightEnable OnSpotLightEnableEvent;
+    
     public delegate void OnTextureEnable(bool textureEnable);
     public event OnTextureEnable OnTextureEnableEvent;
     
@@ -16,6 +25,33 @@ public class GameplayEventsListener
     
     public delegate void OnSmoothNormalsEnable(bool smoothNormalsEnable);
     public event OnSmoothNormalsEnable OnSmoothNormalsEnableEvent;
+    
+    public void InvokeOnDirectionalLightEnable(bool directionalLightEnable)
+    {
+        var handler = OnDirectionalLightEnableEvent;
+        if (handler != null)
+        {
+            handler.Invoke(directionalLightEnable);
+        }
+    }
+    
+    public void InvokeOnPointLightEnable(bool pointLightEnable)
+    {
+        var handler = OnPointLightEnableEvent;
+        if (handler != null)
+        {
+            handler.Invoke(pointLightEnable);
+        }
+    }
+    
+    public void InvokeOnSpotLightEnable(bool spotLightEnable)
+    {
+        var handler = OnSpotLightEnableEvent;
+        if (handler != null)
+        {
+            handler.Invoke(spotLightEnable);
+        }
+    }
     
     public void InvokeOnTextureEnable(bool textureEnable)
     {

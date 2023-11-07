@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using _3D_visualization.Model.Environment;
+using _3D_visualization.Model.Events;
 using _3D_visualization.Model.SystemComponents.Light;
 using _3D_visualization.Model.SystemComponents.Transform.Components;
 using Leopotam.EcsLite;
@@ -14,12 +15,12 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
 {
     [EcsInject] private OpenGLControl _openGlControl;
     [EcsInject] private ShaderManager _shaderManager;
+    [EcsInject] private GameplayEventsListener _eventsListener;
     
     [EcsPool] private EcsPool<Location> _locationComponents;
     [EcsPool] private EcsPool<LightProperties> _lightPropertiesComponents;
 
     private EcsFilter _pointLightFilter;
-
     
     float[] _vertices = {
         -0.5f, -0.5f, -0.5f,
@@ -66,13 +67,13 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
     };
 
     private uint _lightVAO;
-
-    private Vector3 _lightPos = new(1.2f, 1.0f, 1.0f);
+    private bool _pointLightEnable = false; 
 
     public void Init(IEcsSystems systems)
     {
         EcsWorld world = systems.GetWorld();
         _pointLightFilter = world.Filter<PointLight>().End();
+        _eventsListener.OnPointLightEnableEvent += enable => _pointLightEnable = enable;
 
         InitializeSpotLightVao();
     }
@@ -102,33 +103,36 @@ public class LightningRenderSystem : IEcsRunSystem, IEcsInitSystem
 
     public void Run(IEcsSystems systems)
     {
-        OpenGL gl = _openGlControl.OpenGL;
-        
-        Shader lampShader = _shaderManager.UseLampShader();
-
-        gl.BindVertexArray(_lightVAO);
-        
-        gl.EnableVertexAttribArray(0);
-        
-        foreach (var pointLightEntityId in _pointLightFilter)
+        if (_pointLightEnable)
         {
-            ref Location pointLightLocation = ref _locationComponents.Get(pointLightEntityId);
-            ref LightProperties pointLightProperties = ref _lightPropertiesComponents.Get(pointLightEntityId);
-            
-            gl.PushMatrix();
-            
-            gl.Translate(pointLightLocation.Position.X, pointLightLocation.Position.Y, pointLightLocation.Position.Z);
-            gl.Scale(0.2, 0.2, 0.2);
-            
-            lampShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
-            lampShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
-            lampShader.SetVec3("lightColor", pointLightProperties.Diffuse.X, pointLightProperties.Diffuse.Y, pointLightProperties.Diffuse.Z);
-            gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
-
-            gl.PopMatrix();
-        }
+            OpenGL gl = _openGlControl.OpenGL;
         
-        gl.DisableVertexAttribArray(0);
-        gl.BindVertexArray(0);
+            Shader lampShader = _shaderManager.UseLampShader();
+
+            gl.BindVertexArray(_lightVAO);
+        
+            gl.EnableVertexAttribArray(0);
+        
+            foreach (var pointLightEntityId in _pointLightFilter)
+            {
+                ref Location pointLightLocation = ref _locationComponents.Get(pointLightEntityId);
+                ref LightProperties pointLightProperties = ref _lightPropertiesComponents.Get(pointLightEntityId);
+            
+                gl.PushMatrix();
+            
+                gl.Translate(pointLightLocation.Position.X, pointLightLocation.Position.Y, pointLightLocation.Position.Z);
+                gl.Scale(0.2, 0.2, 0.2);
+            
+                lampShader.SetMat4("projection", _openGlControl.OpenGL.GetProjectionMatrix().AsRowMajorArrayFloat);
+                lampShader.SetMat4("modelview", _openGlControl.OpenGL.GetModelViewMatrix().AsRowMajorArrayFloat);
+                lampShader.SetVec3("lightColor", pointLightProperties.Diffuse.X, pointLightProperties.Diffuse.Y, pointLightProperties.Diffuse.Z);
+                gl.DrawArrays(OpenGL.GL_TRIANGLES, 0, 36);
+
+                gl.PopMatrix();
+            }
+        
+            gl.DisableVertexAttribArray(0);
+            gl.BindVertexArray(0);
+        }
     }
 }

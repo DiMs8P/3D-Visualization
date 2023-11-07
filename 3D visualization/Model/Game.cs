@@ -79,7 +79,7 @@ public class Game
             .Add(new LightningRenderSystem())
             .Add(new SplineRenderSystem())
             .Add(new OpenGlPostRunSystem())
-            .Inject(GameplayEventsListener, new ShaderManager(_world, openGlControl), openGlControl)
+            .Inject(GameplayEventsListener, new ShaderManager(_world, openGlControl, GameplayEventsListener), openGlControl)
             .Init();
     }
 

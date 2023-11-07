@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
+using _3D_visualization.Model.Events;
 using _3D_visualization.Model.SystemComponents.Light;
 using _3D_visualization.Model.SystemComponents.MainCamera.Components;
 using _3D_visualization.Model.SystemComponents.Render;
@@ -21,8 +22,6 @@ public class ShaderManager
     [EcsPool] EcsPool<Location> _locationComponents;
     [EcsPool] EcsPool<Rotation> _rotationComponents;
     
-    [EcsPool] EcsPool<DirectionalLight> _directionalLightComponents;
-    [EcsPool] EcsPool<PointLight> _pointLightComponents;
     [EcsPool] EcsPool<SpotLight> _spotLightComponents;
     
     [EcsPool] EcsPool<LightProperties> _lightPropertiesComponents;
@@ -44,8 +43,12 @@ public class ShaderManager
     private uint specularMap;
 
     private int _mainCameraEntityId;
-    
-    public ShaderManager(EcsWorld world, OpenGLControl openGlControl)
+
+    private bool _useDirectionalLight = false;
+    private bool _usePointLight = false;
+    private bool _useSpotLight = false;
+
+    public ShaderManager(EcsWorld world, OpenGLControl openGlControl, GameplayEventsListener eventsListener)
     {
         _world = world;
         _openGlControl = openGlControl;
@@ -57,9 +60,7 @@ public class ShaderManager
         
         _locationComponents = world.GetPool<Location>();
         _rotationComponents = world.GetPool<Rotation>();
-        _directionalLightComponents = world.GetPool<DirectionalLight>();
-        
-        _pointLightComponents = world.GetPool<PointLight>();
+
         _spotLightComponents = world.GetPool<SpotLight>();
 
         _lightPropertiesComponents = world.GetPool<LightProperties>();
@@ -74,6 +75,20 @@ public class ShaderManager
         
         diffuseMap = LoadTexture(System.Environment.CurrentDirectory + "\\Source\\Textures\\diffuse.png");
         specularMap = LoadTexture(System.Environment.CurrentDirectory + "\\Source\\Textures\\specular.png");
+
+        BindOnLightEvents(eventsListener);
+    }
+
+    private void BindOnLightEvents(GameplayEventsListener eventsListener)
+    {
+        eventsListener.OnDirectionalLightEnableEvent +=
+            directionalLightEnable => _useDirectionalLight = directionalLightEnable;
+        
+        eventsListener.OnPointLightEnableEvent +=
+            pointLightEnable => _usePointLight = pointLightEnable;
+        
+        eventsListener.OnSpotLightEnableEvent +=
+            spotLightEnable => _useSpotLight = spotLightEnable;
     }
 
     private void CreateLampShader()
@@ -164,68 +179,81 @@ public class ShaderManager
 
     private void SetUniformDirectionalsLightVariables()
     {
-        int currentIndex = 0;
-        foreach (int directionalLightEntityId in _directionalLightFilter)
+        if (_useDirectionalLight)
         {
-            ref DirectionalLight directionalLight = ref _directionalLightComponents.Get(directionalLightEntityId);
-            ref Direction lightDirection = ref _directionComponents.Get(directionalLightEntityId);
-            ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(directionalLightEntityId);
+            int currentIndex = 0;
+            foreach (int directionalLightEntityId in _directionalLightFilter)
+            {
+                ref Direction lightDirection = ref _directionComponents.Get(directionalLightEntityId);
+                ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(directionalLightEntityId);
 
-            _splineShader.SetVec3($"dirLight[{currentIndex}].direction", lightDirection.To.X, lightDirection.To.Y, lightDirection.To.Z);
-            _splineShader.SetVec3($"dirLight[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
-            _splineShader.SetVec3($"dirLight[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
-            _splineShader.SetVec3($"dirLight[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
+                _splineShader.SetVec3($"dirLight[{currentIndex}].direction", lightDirection.To.X, lightDirection.To.Y, lightDirection.To.Z);
+                _splineShader.SetVec3($"dirLight[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
+                _splineShader.SetVec3($"dirLight[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
+                _splineShader.SetVec3($"dirLight[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
 
-            ++currentIndex;
+                ++currentIndex;
+            }
         }
+
+        _splineShader.SetBool("directionalLightEnabled", _useDirectionalLight);
     }
 
     private void SetUniformPointLightsVariables()
     {
-        int currentIndex = 0;
-        foreach (int pointLightEntityId in _pointLightFilter)
+        if (_usePointLight)
         {
-            ref Location lightLocation = ref _locationComponents.Get(pointLightEntityId);
-            ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(pointLightEntityId);
-            ref Attenuation lightAttenuation = ref _attenuationComponents.Get(pointLightEntityId);
-            ref PointLight pointLight = ref _pointLightComponents.Get(pointLightEntityId);
+            int currentIndex = 0;
+            foreach (int pointLightEntityId in _pointLightFilter)
+            {
+                ref Location lightLocation = ref _locationComponents.Get(pointLightEntityId);
+                ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(pointLightEntityId);
+                ref Attenuation lightAttenuation = ref _attenuationComponents.Get(pointLightEntityId);
 
-            _splineShader.SetVec3($"pointLights[{currentIndex}].position", lightLocation.Position.X, lightLocation.Position.Y, lightLocation.Position.Z);
-            _splineShader.SetVec3($"pointLights[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
-            _splineShader.SetVec3($"pointLights[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
-            _splineShader.SetVec3($"pointLights[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
-            _splineShader.SetFloat($"pointLights[{currentIndex}].constant", lightAttenuation.Constant);
-            _splineShader.SetFloat($"pointLights[{currentIndex}].linear", lightAttenuation.Linear);
-            _splineShader.SetFloat($"pointLights[{currentIndex}].quadratic", lightAttenuation.Quadratic);
+                _splineShader.SetVec3($"pointLights[{currentIndex}].position", lightLocation.Position.X, lightLocation.Position.Y, lightLocation.Position.Z);
+                _splineShader.SetVec3($"pointLights[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
+                _splineShader.SetVec3($"pointLights[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
+                _splineShader.SetVec3($"pointLights[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
+                _splineShader.SetFloat($"pointLights[{currentIndex}].constant", lightAttenuation.Constant);
+                _splineShader.SetFloat($"pointLights[{currentIndex}].linear", lightAttenuation.Linear);
+                _splineShader.SetFloat($"pointLights[{currentIndex}].quadratic", lightAttenuation.Quadratic);
 
-            ++currentIndex;
+                ++currentIndex;
+            }
         }
+
+        _splineShader.SetBool("pointLightEnabled", _usePointLight);
     }
 
     private void SetUniformFlashlightVariables()
     {
-        int currentIndex = 0;
-        foreach (int spotLightEntityId in _spotLightFilter)
+        if (_useSpotLight)
         {
-            ref Location spotLightLocation = ref _locationComponents.Get(spotLightEntityId);
-            ref Rotation spotLightRotation = ref _rotationComponents.Get(spotLightEntityId);
-            ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(spotLightEntityId);
-            ref Attenuation lightAttenuation = ref _attenuationComponents.Get(spotLightEntityId);
-            ref SpotLight spotLight = ref _spotLightComponents.Get(spotLightEntityId);
+            int currentIndex = 0;
+            foreach (int spotLightEntityId in _spotLightFilter)
+            {
+                ref Location spotLightLocation = ref _locationComponents.Get(spotLightEntityId);
+                ref Rotation spotLightRotation = ref _rotationComponents.Get(spotLightEntityId);
+                ref LightProperties lightProperties = ref _lightPropertiesComponents.Get(spotLightEntityId);
+                ref Attenuation lightAttenuation = ref _attenuationComponents.Get(spotLightEntityId);
+                ref SpotLight spotLight = ref _spotLightComponents.Get(spotLightEntityId);
 
-            _splineShader.SetVec3($"spotLight[{currentIndex}].position", spotLightLocation.Position.X, spotLightLocation.Position.Y, spotLightLocation.Position.Z);
-            _splineShader.SetVec3($"spotLight[{currentIndex}].direction", spotLightRotation.ForwardVector.X, spotLightRotation.ForwardVector.Y, spotLightRotation.ForwardVector.Z);
-            _splineShader.SetVec3($"spotLight[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
-            _splineShader.SetVec3($"spotLight[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
-            _splineShader.SetVec3($"spotLight[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
-            _splineShader.SetFloat($"spotLight[{currentIndex}].constant", lightAttenuation.Constant);
-            _splineShader.SetFloat($"spotLight[{currentIndex}].linear", lightAttenuation.Linear);
-            _splineShader.SetFloat($"spotLight[{currentIndex}].quadratic", lightAttenuation.Quadratic);
-            _splineShader.SetFloat($"spotLight[{currentIndex}].cutOff", spotLight.CutOff);
-            _splineShader.SetFloat($"spotLight[{currentIndex}].outerCutOff", spotLight.OuterCutOff);
+                _splineShader.SetVec3($"spotLight[{currentIndex}].position", spotLightLocation.Position.X, spotLightLocation.Position.Y, spotLightLocation.Position.Z);
+                _splineShader.SetVec3($"spotLight[{currentIndex}].direction", spotLightRotation.ForwardVector.X, spotLightRotation.ForwardVector.Y, spotLightRotation.ForwardVector.Z);
+                _splineShader.SetVec3($"spotLight[{currentIndex}].ambient", lightProperties.Ambient.X, lightProperties.Ambient.Y, lightProperties.Ambient.Z);
+                _splineShader.SetVec3($"spotLight[{currentIndex}].diffuse", lightProperties.Diffuse.X, lightProperties.Diffuse.Y, lightProperties.Diffuse.Z);
+                _splineShader.SetVec3($"spotLight[{currentIndex}].specular", lightProperties.Specular.X, lightProperties.Specular.Y, lightProperties.Specular.Z);
+                _splineShader.SetFloat($"spotLight[{currentIndex}].constant", lightAttenuation.Constant);
+                _splineShader.SetFloat($"spotLight[{currentIndex}].linear", lightAttenuation.Linear);
+                _splineShader.SetFloat($"spotLight[{currentIndex}].quadratic", lightAttenuation.Quadratic);
+                _splineShader.SetFloat($"spotLight[{currentIndex}].cutOff", spotLight.CutOff);
+                _splineShader.SetFloat($"spotLight[{currentIndex}].outerCutOff", spotLight.OuterCutOff);
 
-            ++currentIndex;
+                ++currentIndex;
+            }
         }
+
+        _splineShader.SetBool("spotLightEnabled", _useSpotLight);
     }
     
     private uint LoadTexture(string path)

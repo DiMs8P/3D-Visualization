@@ -66,6 +66,36 @@ public partial class MainWindow : Window
             }
         }
     }
+    
+    private void DirectionalLightCheckbox_Unchecked(object sender, RoutedEventArgs e)
+    {
+        _applicationViewModel.UseDirectionalLight(false);
+    }
+
+    private void DirectionalLightCheckbox_Checked(object sender, RoutedEventArgs e)
+    {
+        _applicationViewModel.UseDirectionalLight(true);
+    }
+    
+    private void PointLightCheckbox_Unchecked(object sender, RoutedEventArgs e)
+    {
+        _applicationViewModel.UsePointLight(false);
+    }
+
+    private void PointLightCheckbox_Checked(object sender, RoutedEventArgs e)
+    {
+        _applicationViewModel.UsePointLight(true);
+    }
+
+    private void SpotLightCheckbox_Unchecked(object sender, RoutedEventArgs e)
+    {
+        _applicationViewModel.UseSpotLight(false);
+    }
+
+    private void SpotLightCheckbox_Checked(object sender, RoutedEventArgs e)
+    {
+        _applicationViewModel.UseSpotLight(true);
+    }
 
     private void WireframeCheckbox_Unchecked(object sender, RoutedEventArgs e)
     {
