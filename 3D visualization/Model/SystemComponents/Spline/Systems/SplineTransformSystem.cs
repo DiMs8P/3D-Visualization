@@ -105,23 +105,14 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         Vector3 newZ = Vector3.Normalize(direction);
         Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
         
-        float[,] matrix = {
-            {newX.X, newY.X, newZ.X},
-            {newX.Y, newY.Y, newZ.Y},
-            {newX.Z, newY.Z, newZ.Z}
-        };
-        
         for (int i = 0; i < spline.Section.Count; i++)
         {
             Vector3 point = new Vector3(spline.Section[i].X * spline.Scale[0], spline.Section[i].Y * spline.Scale[0], 0);
+            Vector3 newPoint = MathHelper.GetPointInAnotherCoordinateSystem(newX, newY, newZ, point);
             
-            float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
-            float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
-            float z = matrix[2, 0] * point.X + matrix[2, 1] * point.Y + matrix[2, 2] * point.Z;
-            
-            point.X = spline.Path[0].X + x;
-            point.Y = spline.Path[0].Y + y;
-            point.Z = spline.Path[0].Z + z;
+            point.X = spline.Path[0].X + newPoint.X;
+            point.Y = spline.Path[0].Y + newPoint.Y;
+            point.Z = spline.Path[0].Z + newPoint.Z;
             
             spline.PointsLocation[0][i] = point;
         }
@@ -135,24 +126,15 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         Vector3 newZ = Vector3.Normalize((direction + nextDirection) / 2);
         Vector3 newX = Vector3.Normalize(crossVector);
         Vector3 newY = Vector3.Normalize(Vector3.Cross(newZ, crossVector));
-        
-        float[,] matrix = {
-            {newX.X, newY.X, newZ.X},
-            {newX.Y, newY.Y, newZ.Y},
-            {newX.Z, newY.Z, newZ.Z}
-        };
 
         for (int i = 0; i < spline.Section.Count; i++)
         {
             Vector3 point = new Vector3(spline.Section[i].X * spline.Scale[currentLocation], spline.Section[i].Y  * spline.Scale[currentLocation], 0);
-            
-            float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
-            float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
-            float z = matrix[2, 0] * point.X + matrix[2, 1] * point.Y + matrix[2, 2] * point.Z;
+            Vector3 newPoint = MathHelper.GetPointInAnotherCoordinateSystem(newX, newY, newZ, point);
 
-            point.X = spline.Path[currentLocation].X + x;
-            point.Y = spline.Path[currentLocation].Y + y;
-            point.Z = spline.Path[currentLocation].Z + z;
+            point.X = spline.Path[currentLocation].X + newPoint.X;
+            point.Y = spline.Path[currentLocation].Y + newPoint.Y;
+            point.Z = spline.Path[currentLocation].Z + newPoint.Z;
             
             spline.PointsLocation[currentLocation][i] = point;
         }
@@ -166,24 +148,16 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         Vector3 newX = Vector3.Normalize(crossVector);
         Vector3 newZ = Vector3.Normalize(direction);
         Vector3 newY = Vector3.Normalize(Vector3.Cross(direction, crossVector));
-        
-        float[,] matrix = {
-            {newX.X, newY.X, newZ.X},
-            {newX.Y, newY.Y, newZ.Y},
-            {newX.Z, newY.Z, newZ.Z}
-        };
+
         
         for (int i = 0; i < spline.Section.Count; i++)
         {
             Vector3 point = new Vector3(spline.Section[i].X * spline.Scale[^1] , spline.Section[i].Y * spline.Scale[^1], 0);
+            Vector3 newPoint = MathHelper.GetPointInAnotherCoordinateSystem(newX, newY, newZ, point);
             
-            float x = matrix[0, 0] * point.X + matrix[0, 1] * point.Y + matrix[0, 2] * point.Z;
-            float y = matrix[1, 0] * point.X + matrix[1, 1] * point.Y + matrix[1, 2] * point.Z;
-            float z = matrix[2, 0] * point.X + matrix[2, 1] * point.Y + matrix[2, 2] * point.Z;
-            
-            point.X = spline.Path[^1].X + x;
-            point.Y = spline.Path[^1].Y + y;
-            point.Z = spline.Path[^1].Z + z;
+            point.X = spline.Path[^1].X + newPoint.X;
+            point.Y = spline.Path[^1].Y + newPoint.Y;
+            point.Z = spline.Path[^1].Z + newPoint.Z;
             
             spline.PointsLocation[^1][i] = point;
         }
@@ -311,23 +285,8 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     private void UpdateSplinePointsTexCoords(ref Components.Spline spline)
     {
         InitializeBottomTexCoords(ref spline);
-        
-        for (int i = 1; i < spline.Path.Count - 1; i++)
-        {
-            InitializeCenterTexCoords(ref spline, i);
-        }
-        
-        InitializeTopTexCoords(ref spline);
     }
 
-    private void InitializeTopTexCoords(ref Components.Spline spline)
-    {
-    }
-    
-    private void InitializeCenterTexCoords(ref Components.Spline spline, int currentLocation)
-    {
-        
-    }
     
     private void InitializeBottomTexCoords(ref Components.Spline spline)
     {
@@ -385,58 +344,25 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             spline.Indexes[currentLine + 3 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 1;
             spline.Indexes[currentLine + 4 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 2;
             spline.Indexes[currentLine + 5 + (2 * i + 2 * currentLocation * spline.Section.Count)] = currentLine + 3;
-            
-            spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation][i].X;
-            spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][i].Y;
-            spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][i].Z;
-            
-            spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][i].X;
-            spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][i].Y;
-            spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][i].Z;
-            
-            spline.VBOdata[currentLine * 11 + 9] = 0;
-            spline.VBOdata[currentLine * 11 + 10] = 0;
 
-            ++currentLine;
+            for (int k = 0; k < 2; k++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + j][i + k].X;
+                    spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + j][i + k].Y;
+                    spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + j][i + k].Z;
             
-            spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][i].Z;
+                    spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + j][i + k].X;
+                    spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + j][i + k].Y;
+                    spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + j][i + k].Z;
             
-            spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + 1][i].Z;
-            
-            spline.VBOdata[currentLine * 11 + 9] = 0;
-            spline.VBOdata[currentLine * 11 + 10] = 1;
+                    spline.VBOdata[currentLine * 11 + 9] = k;
+                    spline.VBOdata[currentLine * 11 + 10] = j;
 
-            ++currentLine;
-            
-            spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation][i + 1].X;
-            spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][i + 1].Y;
-            spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][i + 1].Z;
-            
-            spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][i + 1].X;
-            spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][i + 1].Y;
-            spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][i + 1].Z;
-            
-            spline.VBOdata[currentLine * 11 + 9] = 1;
-            spline.VBOdata[currentLine * 11 + 10] = 0;
-
-            ++currentLine;
-            
-            spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][i + 1].X;
-            spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][i + 1].Y;
-            spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][i + 1].Z;
-            
-            spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][i + 1].X;
-            spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][i + 1].Y;
-            spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + 1][i + 1].Z;
-            
-            spline.VBOdata[currentLine * 11 + 9] = 1;
-            spline.VBOdata[currentLine * 11 + 10] = 1;
-
-            ++currentLine;
+                    ++currentLine;
+                }
+            }
         }
         
         spline.Indexes[currentLine - 1 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine;
@@ -445,58 +371,38 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
         spline.Indexes[currentLine + 2 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 1;
         spline.Indexes[currentLine + 3 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 2;
         spline.Indexes[currentLine + 4 + (2 * spline.Section.Count - 1 + 2 * currentLocation * spline.Section.Count)] = currentLine + 3;
+
+        for (int j = 0; j < 2; j++)
+        {
+            spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + j][^1].X;
+            spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + j][^1].Y;
+            spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + j][^1].Z;
         
-        spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation][^1].X;
-        spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][^1].Y;
-        spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][^1].Z;
+            spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + j][^1].X;
+            spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + j][^1].Y;
+            spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + j][^1].Z;
         
-        spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][^1].X;
-        spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][^1].Y;
-        spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][^1].Z;
+            spline.VBOdata[currentLine * 11 + 9] = 0;
+            spline.VBOdata[currentLine * 11 + 10] = j;
         
-        spline.VBOdata[currentLine * 11 + 9] = 0;
-        spline.VBOdata[currentLine * 11 + 10] = 0;
+            ++currentLine;
+        }
         
-        ++currentLine;
+        for (int j = 0; j < 2; j++)
+        {
+            spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + j][0].X;
+            spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + j][0].Y;
+            spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + j][0].Z;
         
-        spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][^1].Z;
+            spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + j][0].X;
+            spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + j][0].Y;
+            spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + j][0].Z;
         
-        spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + 1][^1].Z;
+            spline.VBOdata[currentLine * 11 + 9] = 1;
+            spline.VBOdata[currentLine * 11 + 10] = j;
         
-        spline.VBOdata[currentLine * 11 + 9] = 0;
-        spline.VBOdata[currentLine * 11 + 10] = 1;
-        
-        ++currentLine;
-        
-        spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation][0].X;
-        spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation][0].Y;
-        spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation][0].Z;
-        
-        spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation][0].X;
-        spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation][0].Y;
-        spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation][0].Z;
-        
-        spline.VBOdata[currentLine * 11 + 9] = 1;
-        spline.VBOdata[currentLine * 11 + 10] = 0;
-        
-        ++currentLine;
-        
-        spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[currentLocation + 1][0].X;
-        spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[currentLocation + 1][0].Y;
-        spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[currentLocation + 1][0].Z;
-        
-        spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[currentLocation + 1][0].X;
-        spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[currentLocation + 1][0].Y;
-        spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[currentLocation + 1][0].Z;
-        
-        spline.VBOdata[currentLine * 11 + 9] = 1;
-        spline.VBOdata[currentLine * 11 + 10] = 1;
-        
-        ++currentLine;
+            ++currentLine;
+        }
     }
 
     private void FillBottomVbo(ref Components.Spline spline, ref int currentLine)
@@ -540,7 +446,6 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
             }
         }
 
-        
         FillTopVboNormals(ref spline, ref currentLine);
     }
 
@@ -584,54 +489,36 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         for (int i = 0; i < spline.Section.Count - 1; i++)
         {
-            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][i].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][i].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][i].Z;
+            for (int k = 0; k < 2; k++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + j][i + k].X;
+                    spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + j][i + k].Y;
+                    spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + j][i + k].Z;
     
-            ++currentLine;
-            
-            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][i].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][i].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][i].Z;
-    
-            ++currentLine;
-            
-            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][i + 1].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][i + 1].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][i + 1].Z;
-    
-            ++currentLine;
-            
-            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][i + 1].X;
-            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][i + 1].Y;
-            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][i + 1].Z;
+                    ++currentLine;
+                }
+            }
+        }
+        
+        for (int j = 0; j < 2; j++)
+        {
+            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + j][^1].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + j][^1].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + j][^1].Z;
     
             ++currentLine;
         }
         
-        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][^1].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][^1].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][^1].Z;
+        for (int j = 0; j < 2; j++)
+        {
+            spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + j][0].X;
+            spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + j][0].Y;
+            spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + j][0].Z;
     
-        ++currentLine;
-            
-        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][^1].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][^1].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][^1].Z;
-    
-        ++currentLine;
-            
-        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation][0].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation][0].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation][0].Z;
-    
-        ++currentLine;
-            
-        spline.VBOdata[currentLine * 11 + 3] = spline.SmoothNormals[currentLocation + 1][0].X;
-        spline.VBOdata[currentLine * 11 + 4] = spline.SmoothNormals[currentLocation + 1][0].Y;
-        spline.VBOdata[currentLine * 11 + 5] = spline.SmoothNormals[currentLocation + 1][0].Z;
-    
-        ++currentLine;
+            ++currentLine;
+        }
     }
     
     private void FillBottomVboNormals(ref Components.Spline spline, ref int currentLine)

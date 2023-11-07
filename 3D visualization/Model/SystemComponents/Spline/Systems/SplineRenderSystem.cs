@@ -53,13 +53,13 @@ public class SplineRenderSystem : IEcsInitSystem, IEcsRunSystem
                 ref Components.Spline spline = ref _splineComponents.Get(splineEntityId);
 
                 OpenGL gl = _openGlControl.OpenGL;
-                
+
                 gl.BindVertexArray(spline.SplineVAO);
                 gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, spline.SplineVBO);
-                
+
                 IntPtr ptr1 = GCHandle.Alloc(spline.VBOdata, GCHandleType.Pinned).AddrOfPinnedObject();
                 gl.BufferSubData(OpenGL.GL_ARRAY_BUFFER, 0, spline.VBOdata.Length * sizeof(float), ptr1);
-                
+
                 gl.BindBuffer(OpenGL.GL_ARRAY_BUFFER, 0);
                 gl.BindVertexArray(0);
             }
@@ -248,80 +248,52 @@ public class SplineRenderSystem : IEcsInitSystem, IEcsRunSystem
 
         for (int i = 0; i < spline.Section.Count() - 1; i++)
         {
-            openGl.Color(0.0f, 0.0f, 1.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation][i].X, spline.PointsLocation[currentLocation][i].Y,
-                spline.PointsLocation[currentLocation][i].Z);
+            for (int j = 0; j < 2; j++)
+            {
+                openGl.Color(0.0f, 0.0f, 1.0f);
+                openGl.Vertex(spline.PointsLocation[currentLocation + j][i].X,
+                    spline.PointsLocation[currentLocation + j][i].Y,
+                    spline.PointsLocation[currentLocation + j][i].Z);
 
-            openGl.Color(0.0f, 1.0f, 0.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation][i].X + spline.Normals[currentLocation + 1][i].X,
-                spline.PointsLocation[currentLocation][i].Y + spline.Normals[currentLocation + 1][i].Y,
-                spline.PointsLocation[currentLocation][i].Z + spline.Normals[currentLocation + 1][i].Z);
+                openGl.Color(0.0f, 1.0f, 0.0f);
+                openGl.Vertex(
+                    spline.PointsLocation[currentLocation + j][i].X + spline.Normals[currentLocation + 1][i].X,
+                    spline.PointsLocation[currentLocation + j][i].Y + spline.Normals[currentLocation + 1][i].Y,
+                    spline.PointsLocation[currentLocation + j][i].Z + spline.Normals[currentLocation + 1][i].Z);
 
-            openGl.Color(0.0f, 0.0f, 1.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation + 1][i].X,
-                spline.PointsLocation[currentLocation + 1][i].Y, spline.PointsLocation[currentLocation + 1][i].Z);
+                openGl.Color(0.0f, 0.0f, 1.0f);
+                openGl.Vertex(spline.PointsLocation[currentLocation + j][i + 1].X,
+                    spline.PointsLocation[currentLocation + j][i + 1].Y,
+                    spline.PointsLocation[currentLocation + j][i + 1].Z);
 
-            openGl.Color(0.0f, 1.0f, 0.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation + 1][i].X + spline.Normals[currentLocation + 1][i].X,
-                spline.PointsLocation[currentLocation + 1][i].Y + spline.Normals[currentLocation + 1][i].Y,
-                spline.PointsLocation[currentLocation + 1][i].Z + spline.Normals[currentLocation + 1][i].Z);
-
-            openGl.Color(0.0f, 0.0f, 1.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation][i + 1].X,
-                spline.PointsLocation[currentLocation][i + 1].Y, spline.PointsLocation[currentLocation][i + 1].Z);
-
-            openGl.Color(0.0f, 1.0f, 0.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation][i + 1].X + spline.Normals[currentLocation + 1][i].X,
-                spline.PointsLocation[currentLocation][i + 1].Y + spline.Normals[currentLocation + 1][i].Y,
-                spline.PointsLocation[currentLocation][i + 1].Z + spline.Normals[currentLocation + 1][i].Z);
-
-            openGl.Color(0.0f, 0.0f, 1.0f);
-            openGl.Vertex(spline.PointsLocation[currentLocation + 1][i + 1].X,
-                spline.PointsLocation[currentLocation + 1][i + 1].Y,
-                spline.PointsLocation[currentLocation + 1][i + 1].Z);
-
-            openGl.Color(0.0f, 1.0f, 0.0f);
-            openGl.Vertex(
-                spline.PointsLocation[currentLocation + 1][i + 1].X + spline.Normals[currentLocation + 1][i].X,
-                spline.PointsLocation[currentLocation + 1][i + 1].Y + spline.Normals[currentLocation + 1][i].Y,
-                spline.PointsLocation[currentLocation + 1][i + 1].Z + spline.Normals[currentLocation + 1][i].Z);
+                openGl.Color(0.0f, 1.0f, 0.0f);
+                openGl.Vertex(
+                    spline.PointsLocation[currentLocation + j][i + 1].X + spline.Normals[currentLocation + 1][i].X,
+                    spline.PointsLocation[currentLocation + j][i + 1].Y + spline.Normals[currentLocation + 1][i].Y,
+                    spline.PointsLocation[currentLocation + j][i + 1].Z + spline.Normals[currentLocation + 1][i].Z);
+            }
         }
 
-        openGl.Color(0.0f, 0.0f, 1.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation][0].X, spline.PointsLocation[currentLocation][0].Y,
-            spline.PointsLocation[currentLocation][0].Z);
+        for (int j = 0; j < 2; j++)
+        {
+            openGl.Color(0.0f, 0.0f, 1.0f);
+            openGl.Vertex(spline.PointsLocation[currentLocation + j][0].X, spline.PointsLocation[currentLocation + j][0].Y,
+                spline.PointsLocation[currentLocation + j][0].Z);
 
-        openGl.Color(0.0f, 1.0f, 0.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation][0].X + spline.Normals[currentLocation + 1][^1].X,
-            spline.PointsLocation[currentLocation][0].Y + spline.Normals[currentLocation + 1][^1].Y,
-            spline.PointsLocation[currentLocation][0].Z + spline.Normals[currentLocation + 1][^1].Z);
+            openGl.Color(0.0f, 1.0f, 0.0f);
+            openGl.Vertex(spline.PointsLocation[currentLocation + j][0].X + spline.Normals[currentLocation + 1][^1].X,
+                spline.PointsLocation[currentLocation + j][0].Y + spline.Normals[currentLocation + 1][^1].Y,
+                spline.PointsLocation[currentLocation + j][0].Z + spline.Normals[currentLocation + 1][^1].Z);
 
-        openGl.Color(0.0f, 0.0f, 1.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation + 1][0].X, spline.PointsLocation[currentLocation + 1][0].Y,
-            spline.PointsLocation[currentLocation + 1][0].Z);
+            openGl.Color(0.0f, 0.0f, 1.0f);
+            openGl.Vertex(spline.PointsLocation[currentLocation + j][^1].X, spline.PointsLocation[currentLocation + j][^1].Y,
+                spline.PointsLocation[currentLocation + j][^1].Z);
 
-        openGl.Color(0.0f, 1.0f, 0.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation + 1][0].X + spline.Normals[currentLocation + 1][^1].X,
-            spline.PointsLocation[currentLocation + 1][0].Y + spline.Normals[currentLocation + 1][^1].Y,
-            spline.PointsLocation[currentLocation + 1][0].Z + spline.Normals[currentLocation + 1][^1].Z);
-
-        openGl.Color(0.0f, 0.0f, 1.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation][^1].X, spline.PointsLocation[currentLocation][^1].Y,
-            spline.PointsLocation[currentLocation][^1].Z);
-
-        openGl.Color(0.0f, 1.0f, 0.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation][^1].X + spline.Normals[currentLocation + 1][^1].X,
-            spline.PointsLocation[currentLocation][^1].Y + spline.Normals[currentLocation + 1][^1].Y,
-            spline.PointsLocation[currentLocation][^1].Z + spline.Normals[currentLocation + 1][^1].Z);
-
-        openGl.Color(0.0f, 0.0f, 1.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation + 1][^1].X,
-            spline.PointsLocation[currentLocation + 1][^1].Y, spline.PointsLocation[currentLocation + 1][^1].Z);
-
-        openGl.Color(0.0f, 1.0f, 0.0f);
-        openGl.Vertex(spline.PointsLocation[currentLocation + 1][^1].X + spline.Normals[currentLocation + 1][^1].X,
-            spline.PointsLocation[currentLocation + 1][^1].Y + spline.Normals[currentLocation + 1][^1].Y,
-            spline.PointsLocation[currentLocation + 1][^1].Z + spline.Normals[currentLocation + 1][^1].Z);
+            openGl.Color(0.0f, 1.0f, 0.0f);
+            openGl.Vertex(spline.PointsLocation[currentLocation + j][^1].X + spline.Normals[currentLocation + 1][^1].X,
+                spline.PointsLocation[currentLocation + j][^1].Y + spline.Normals[currentLocation + 1][^1].Y,
+                spline.PointsLocation[currentLocation + j][^1].Z + spline.Normals[currentLocation + 1][^1].Z);
+        }
 
         openGl.PopMatrix();
 
