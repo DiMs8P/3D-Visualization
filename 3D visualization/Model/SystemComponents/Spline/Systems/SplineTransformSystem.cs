@@ -317,17 +317,21 @@ public class SplineTransformSystem : IEcsInitSystem, IEcsRunSystem
     {
         for (int i = 0; i < spline.Section.Count; i++)
         {
+            // Locations
             spline.VBOdata[currentLine * 11    ] = spline.PointsLocation[^1][i].X;
             spline.VBOdata[currentLine * 11 + 1] = spline.PointsLocation[^1][i].Y;
             spline.VBOdata[currentLine * 11 + 2] = spline.PointsLocation[^1][i].Z;
             
+            // Colors
             spline.VBOdata[currentLine * 11 + 6] = spline.PointsColor[^1][0].X;
             spline.VBOdata[currentLine * 11 + 7] = spline.PointsColor[^1][0].Y;
             spline.VBOdata[currentLine * 11 + 8] = spline.PointsColor[^1][0].Z;
             
+            // Texture Coordinates
             spline.VBOdata[currentLine * 11 + 9] = spline.TexCoords[i].X;
             spline.VBOdata[currentLine * 11 + 10] = spline.TexCoords[i].Y;
             
+            // Indexes
             spline.Indexes[^(spline.Section.Count - i)] = currentLine;
 
             ++currentLine;

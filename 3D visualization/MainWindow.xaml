@@ -46,7 +46,7 @@
                     <CheckBox Name="DirectionalLightCheckbox" IsChecked="False"
                               Unchecked="DirectionalLightCheckbox_Unchecked"
                               Checked="DirectionalLightCheckbox_Checked" >
-                    <TextBlock Text="Нарпавленное" TextWrapping="Wrap"/>
+                    <TextBlock Text="Направленное" TextWrapping="Wrap"/>
                     </CheckBox>
                     <CheckBox Name="PointLightCheckbox" IsChecked="False"
                               Unchecked="PointLightCheckbox_Unchecked"

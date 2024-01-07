@@ -37,7 +37,6 @@ public partial class MainWindow : Window
         OpenGLControl.OpenGL.Enable(OpenGL.GL_DOUBLEBUFFER);
         
         _applicationViewModel.Initialize(OpenGLControl, 60);
-        _applicationViewModel.SetReplicationObjects(Environment.CurrentDirectory + "\\Source\\Spline\\splineData.txt");
     } 
 
     private void OpenGLControl_Resized(object sender, OpenGLRoutedEventArgs openGlRoutedEventArgs)
